@@ -1,5 +1,9 @@
 #include "transbank.h"
 
+static char POLLING_MESSAGE[] = {0x02, 0x30, 0x31, 0x30, 0x30, 0x03, 0x02};
+size_t POLLING_SIZE = sizeof(POLLING_MESSAGE);
+
+
 int list_ports() {
   struct sp_port **ports;
   int retval = sp_list_ports(&ports);

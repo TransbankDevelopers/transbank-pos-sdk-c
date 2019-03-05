@@ -9,9 +9,6 @@
 
 struct sp_port *port;
 
-static char POLLING_MESSAGE[] = {0x02, 0x30, 0x31, 0x30, 0x30, 0x03, 0x02};
-size_t POLLING_SIZE = sizeof(POLLING_MESSAGE);
-
 enum HexCodes{
   ACK = 0x06,
   NACK = 0x15,
