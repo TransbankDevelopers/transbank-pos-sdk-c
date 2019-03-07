@@ -1,10 +1,10 @@
 build/main: build/main.o build/transbank.o
 	cc -o build/main build/main.o build/transbank.o -lserialport
-build/main.o: src/main.c src/transbank.h
-	cc -c -g src/main.c -o build/main.o
+build/main.o: examples/main.c src/transbank.h
+	cc -c -g examples/main.c -o build/main.o -I./src
 build/transbank.o: src/transbank.h src/transbank.c
 	cc -c -g src/transbank.c -o build/transbank.o
-run: src/main.c src/transbank.h src/transbank.c
+run: build/main build/main.o build/Transbank.o
 	./build/main
 debug: src/main.c src/transbank.h src/transbank.c
 	export LIBSERIALPORT_DEBUG=1 && ./build/main && unset LIBSERIALPORT_DEBUG
