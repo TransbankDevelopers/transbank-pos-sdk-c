@@ -8,6 +8,7 @@
 #include <libserialport.h>
 
 struct sp_port *port;
+struct sp_port_config *config;
 
 enum HexCodes{
   ACK = 0x06,
@@ -17,22 +18,35 @@ enum HexCodes{
   PIPE = 0x7C
 };
 
-//115200 Bps (8N1)
+static const int TBK_OK = 0;
+static const int TBK_NOK = -1;
+static const int DEFAULT_TIMEOUT = 100;
+
 static const int TBK_BAUD_RATE = 115200;
 static const int TBK_BITS = 8;
 static const int TBK_PARITY = SP_PARITY_NONE;
 static const int TBK_STOP_BITS = 1;
 
-extern int list_ports();
+typedef struct message_t Message;
+
+extern char** list_ports();
+
+extern char* get_configured_port_name();
+
+extern int open_configured_port();
 
 extern int select_port(char* portName);
 
-extern int ConfigureSerialPort(struct sp_port *port);
+extern int configure_port();
 
-extern int ReadBytes(char* buf, int size);
+extern int get_totals();
 
-extern int Polling();
+extern int load_keys();
 
-extern int closePort();
+extern int polling();
+
+extern int set_normal_mode();
+
+extern int close_port();
 
 #endif
