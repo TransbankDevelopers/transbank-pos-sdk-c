@@ -26,9 +26,10 @@
 
 ## Dev
 
-- git clone git://sigrok.org/libserialport
+- git clone git://sigrok.org/libserialport (Also a Dependencie)
 - brew install automake
 - brew install libtool
+- brew install swig
 
 - Driver USB Serial Chipset Prolific: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 - Driver USB Serial Chipset CH340: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
@@ -42,3 +43,7 @@ cc src/hello.c -o build/hello -lserialport
 ### RUN
 
 ./build/hello
+
+### Install
+
+cp buid/transbank.dylib /usr/local/lib
