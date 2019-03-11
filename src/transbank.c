@@ -1,5 +1,22 @@
 #include "transbank.h"
 
+struct sp_port *port;
+struct sp_port_config *config;
+
+static const int DEFAULT_TIMEOUT = 500;
+static const int TBK_BAUD_RATE = 115200;
+static const int TBK_BITS = 8;
+static const int TBK_PARITY = SP_PARITY_NONE;
+static const int TBK_STOP_BITS = 1;
+
+enum HexCodes{
+  ACK = 0x06,
+  NACK = 0x15,
+  STX = 0x02,
+  ETX = 0x03,
+  PIPE = 0x7C
+};
+
 static char GET_TOTALS_MESSAGE[] = {0x02, 0x30, 0x37, 0x30, 0x30, 0x7C, 0x7C, 0x03, 0x04};
 static char LOAD_KEYS_MESSAGE[] = {0x02, 0x30, 0x38, 0x30, 0x30, 0x03, 0x0B};
 static char POLLING_MESSAGE[] = {0x02, 0x30, 0x31, 0x30, 0x30, 0x03, 0x02};
@@ -18,7 +35,6 @@ static Message CHANGE_TO_NORMAL = {
   .responseSize = 1,
   .retries = 3
 };
-
 
 char ** list_ports() {
   struct sp_port **ports;
