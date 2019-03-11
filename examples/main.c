@@ -4,50 +4,49 @@
 int main() {
 
   //Select USB Serial Adapter
-  char* portName = "/dev/cu.wchusbserial14240"; //CH340 Chipset
+  //char* portName = "/dev/cu.wchusbserial14240"; //CH340 Chipset
+  char* portName = "/dev/cu.usbserial"; //Prolific AFC
 
-  //printf("List all ports\n");
-  //char** ports = list_ports();
-  //for (int i=0; i < 3; i++)
+  printf("List all ports\n");
+  char** ports = list_ports();
+  for (int i=0; i < 3; i++)
+    printf("%s\n", ports[i]);
+
 
   printf("Selecting Port %s\n", portName);
   int retval = select_port(portName);
-  if ( retval == SP_OK ){
+  if ( retval == TBK_OK ){
     printf("Open and Configure port: %s\r\n", get_configured_port_name());
     retval = open_configured_port();
-    if (retval == SP_OK)
+    if (retval == TBK_OK)
     {
       puts("Serial port successfully opened.\n");
       if (configure_port() == TBK_OK)
       {
-        //printf("List all ports\n");
-        //char** ports = list_ports();
-        //for (int i=0; i < 3; i++)
-        //  printf("%s\n", ports[i]);
+        printf("Polling the POS...\n");
+        if (polling() == TBK_OK)
+          printf("POS CONNECTED\n");
+        else
+          printf("Unable to poll the pos\n");
 
-        //printf("Polling the POS...\n\n");
-        //polling();
+        //printf("Request to LoadKeys...\n");
+        //if (load_keys() == TBK_OK)
+        //  printf("Keys Loaded OK\n");
+        //else
+        //  printf("Unable to load keys\n");
+
+        //sleep(200);
+        //printf("Get Totals...\n");
+        //if (get_totals() == TBK_OK)
+        //  printf("Totals OK\n");
+        //else
+        //  printf("Unable to get Totals\n");
 
         //printf("Change to Normal Pos. \n\n");
         //if (change_normal_mode() == TBK_OK)
         //  printf("Success\n");
         //else
         //  printf("Nothing to do\n");
-
-        //printf("Request to LoadKeys...\n\n");
-        //load_keys();
-
-        //printf("Get Totals...\n\n");
-        //get_totals();
-
-        //char MESSAGE[] = { 0x02, 0x30, 0x37, 0x30, 0x30, 0x7C, 0x7C, 0x03, 0x04 };
-        //sp_blocking_write(port, MESSAGE, 16, 100);
-
-        //getchar();
-
-        //char ACK[] = {0x06};
-        //sp_blocking_write(port, ACK, 16, 100);
-
       }
 
       printf("Press ENTER key to Close Port and Exit\n");
@@ -57,17 +56,17 @@ int main() {
       retval = close_port();
       if(retval == SP_OK)
       {
-        puts("Serial port closed.");
+        puts("Serial port closed.\n");
       }
       else
       {
-        puts("Unable to close serial port.");
+        puts("Unable to close serial port.\n");
       }
     }
     else
-      printf("Unable to open selected port");
+      printf("Unable to open selected port\n");
   }
   else
-    printf("Unable to select specified port");
+    printf("Unable to select specified port\n");
   return 0;
 }

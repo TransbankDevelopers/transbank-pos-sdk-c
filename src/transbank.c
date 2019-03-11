@@ -29,6 +29,27 @@ struct message_t {
   char* payload;
 };
 
+static Message GET_TOTALS = {
+  .payload = GET_TOTALS_MESSAGE,
+  .payloadSize =7,
+  .responseSize = 21,
+  .retries = 1
+};
+
+static Message LOAD_KEYS = {
+  .payload = LOAD_KEYS_MESSAGE,
+  .payloadSize = 7,
+  .responseSize = 33,
+  .retries = 3
+};
+
+static Message POLLING = {
+  .payload = POLLING_MESSAGE,
+  .payloadSize = 7,
+  .responseSize = 1,
+  .retries = 3
+};
+
 static Message CHANGE_TO_NORMAL = {
   .payload = CHANGE_TO_NORMAL_MESSAGE,
   .payloadSize = 7,
@@ -115,136 +136,82 @@ int write_message(Message message){
   return retval;
 }
 
+int reply_ack(){
+  char buf[] = {ACK};
+  return sp_blocking_write(port, buf, 1, DEFAULT_TIMEOUT);
+}
+
 int read_bytes(char* buf, Message message){
   memset(buf, 0, message.responseSize);
   int retval = sp_blocking_read_next(port, buf, message.responseSize, DEFAULT_TIMEOUT);
   if (retval == message.responseSize)
     retval = TBK_OK;
-  else
+  else{
     retval -= message.responseSize;
+  }
   sp_flush(port, SP_BUF_INPUT);
   return retval;
 }
 
-int get_totals(){
-  sp_flush(port, SP_BUF_BOTH);
-  int messageSize = sizeof(GET_TOTALS_MESSAGE);
-  int retval = 0;
-  int bytesCount = sp_blocking_write(port, GET_TOTALS_MESSAGE, messageSize, 100);
-  if (bytesCount == messageSize){
-    char* returnBuf;
-    retval = sp_drain(port);
-    if (retval == SP_OK)
-    {
-      bytesCount = read_bytes(returnBuf, CHANGE_TO_NORMAL);
-      if (bytesCount > 0){
-        for (int i = 0; i < bytesCount; i++){
-          printf("%02X ", returnBuf[i]);
-        }
-        putchar('\n');
-        if (returnBuf[0] == ACK)
-            retval = 0;
-          else
-            retval = -1;
-      }
-      else
-      {
-        retval = -1;
-        printf("No bytes readed\n");
-      }
-    }
-    else
-    {
-      retval = -1;
-      printf("Unable to write all bytes...");
-    }
-  }
-  else
-    retval = bytesCount;
-  sp_flush(port, SP_BUF_BOTH);
+int read_ack(){
+  char* buf;
+  int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
+  if (retval == TBK_OK)
+    return retval;
   return retval;
+}
+
+int get_totals(){
+  int tries = 0;
+  do
+  {
+    int retval = write_message(GET_TOTALS);
+    if (retval == TBK_OK){
+      char* returnBuf;
+      retval = read_bytes(returnBuf, GET_TOTALS);
+      if (retval == TBK_OK && returnBuf[0] == ACK)
+        return TBK_OK;
+    }
+    tries++;
+  } while (tries < GET_TOTALS.retries);
+  return TBK_NOK;
 }
 
 int load_keys(){
-  sp_flush(port, SP_BUF_BOTH);
-  int messageSize = sizeof(LOAD_KEYS_MESSAGE);
-  int retval = 0;
-  int bytesCount = sp_blocking_write(port, LOAD_KEYS_MESSAGE, messageSize, 100);
-  if (bytesCount == messageSize){
-    char* returnBuf;
+  int tries = 0;
+  do
+  {
+    int retval = write_message(LOAD_KEYS);
+    if (retval == TBK_OK){
+      char* returnBuf;
+      retval = read_ack();
+      if (retval == TBK_OK && returnBuf[0] == ACK){
+        retval = read_bytes(returnBuf, LOAD_KEYS);
+        if (retval == TBK_OK)
+          for(int i=0; i < sizeof(returnBuf); i++)
+            printf("%0X2",returnBuf[i]);
+      }
+    }
+    tries++;
+  } while (tries < LOAD_KEYS.retries);
 
-    retval = sp_drain(port);
-    if (retval == SP_OK)
-    {
-      bytesCount = read_bytes(returnBuf, CHANGE_TO_NORMAL);
-      if (bytesCount > 0){
-        for (int i = 0; i < bytesCount; i++){
-          printf("%02X ", returnBuf[i]);
-        }
-        putchar('\n');
-        if (returnBuf[0] == ACK)
-            retval = 0;
-          else
-            retval = -1;
-      }
-      else
-      {
-        retval = -1;
-        printf("No bytes readed\n");
-      }
-    }
-    else
-    {
-      retval = -1;
-      printf("Unable to write all bytes...");
-    }
-  }
-  else
-    retval = bytesCount;
-  sp_flush(port, SP_BUF_BOTH);
-  return retval;
+  return TBK_NOK;
 }
 
 int polling(){
-  sp_flush(port, SP_BUF_BOTH);
-  int messageSize = sizeof(POLLING_MESSAGE);
-  int retval = 0;
-  int bytesCount = sp_blocking_write(port, POLLING_MESSAGE, messageSize, 100);
-  if (bytesCount == messageSize){
-    char* returnBuf;
-
-    retval = sp_drain(port);
-
-    if (retval == SP_OK)
-    {
-      bytesCount = read_bytes(returnBuf, CHANGE_TO_NORMAL);
-      if (bytesCount > 0){
-        for(int i=0; i<bytesCount; i++)
-          {
-            printf("%02X ", returnBuf[i]);
-          }
-          putchar('\n');
-          if (returnBuf[0] == ACK)
-            retval = 0;
-          else
-            retval = -1;
-      }
-      else
-      {
-        retval = -1;
-        printf("No bytes readed\n");
-      }
+  int tries = 0;
+  do
+  {
+    int retval = write_message(POLLING);
+    if (retval == TBK_OK){
+      char* returnBuf;
+      retval = read_bytes(returnBuf, POLLING);
+      if (retval == TBK_OK && returnBuf[0] == ACK)
+        return TBK_OK;
     }
-    else
-    {
-      retval = -1;
-      printf("Unable to write all bytes...");
-    }
-  }
-  else
-    retval = bytesCount;
-  sp_flush(port, SP_BUF_BOTH);
-  return retval;
+    tries++;
+  } while (tries < POLLING.retries);
+  return TBK_NOK;
 }
 
 int set_normal_mode(){
