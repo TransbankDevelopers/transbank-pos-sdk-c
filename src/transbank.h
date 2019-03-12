@@ -12,6 +12,8 @@ static const int TBK_NOK = -1;
 
 typedef struct message_t Message;
 
+extern void print_ports();
+
 extern char** list_ports();
 
 extern char* get_configured_port_name();

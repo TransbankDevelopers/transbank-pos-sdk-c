@@ -57,6 +57,14 @@ static Message CHANGE_TO_NORMAL = {
   .retries = 3
 };
 
+void print_ports(){
+  struct sp_port **ports;
+  int retval = sp_list_ports(&ports);
+  for (int i=0; ports[i]; i++){
+    printf("%s\n", sp_get_port_name(ports[i]));
+  }
+}
+
 char ** list_ports() {
   struct sp_port **ports;
   char** portList;
@@ -156,9 +164,10 @@ int read_bytes(char* buf, Message message){
 int read_ack(){
   char* buf;
   int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
-  if (retval == TBK_OK)
+  if (retval == 1 && buf[1] == ACK)
+    return TBK_OK;
+  else
     return retval;
-  return retval;
 }
 
 int get_totals(){
@@ -204,9 +213,7 @@ int polling(){
   {
     int retval = write_message(POLLING);
     if (retval == TBK_OK){
-      char* returnBuf;
-      retval = read_bytes(returnBuf, POLLING);
-      if (retval == TBK_OK && returnBuf[0] == ACK)
+      if (read_ack() == TBK_OK)
         return TBK_OK;
     }
     tries++;
