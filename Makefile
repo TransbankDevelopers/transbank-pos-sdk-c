@@ -14,5 +14,10 @@ wraper:
 	cd build && cc -fpic -c ../src/transbank.c transbank_wrap.c -I../src
 	cc -dynamiclib build/transbank.o build/transbank_wrap.o -o build/transbank.dylib -lserialport
 	sudo cp build/transbank.dylib /usr/local/lib
+windows-wraper:
+	swig -csharp -o build/transbank_wrap.c -namespace Transbank.pos src/transbank.i
+	cd build && cc -fpic -c ../src/transbank.c transbank_wrap.c -I../src
+	cc -shared build/transbank.o build/transbank_wrap.o -o build/transbank.dll -lserialport
+	cp build/transbank.dll /c/msys64/mingw64/bin
 clean:
 	rm -rf build/*
