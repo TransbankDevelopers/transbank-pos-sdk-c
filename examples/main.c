@@ -5,7 +5,8 @@ int main() {
 
   //Select USB Serial Adapter
   //char* portName = "/dev/cu.wchusbserial14240"; //CH340 Chipset
-  char* portName = "/dev/cu.usbserial"; //Prolific AFC
+  //char* portName = "/dev/cu.usbserial"; //Prolific AFC
+  char* portName = "COM4";
 
   printf("List all ports\n");
   char** ports = list_ports();
