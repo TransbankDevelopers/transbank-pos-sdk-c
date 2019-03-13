@@ -161,7 +161,7 @@ int read_bytes(char* buf, Message message){
 }
 
 int read_ack(){
-  char* buf;
+  char buf[1];
   int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
   if (retval == 1 && buf[1] == ACK)
     return TBK_OK;
