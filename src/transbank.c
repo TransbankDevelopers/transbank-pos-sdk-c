@@ -68,7 +68,6 @@ void print_ports(){
 char * list_ports() {
   struct sp_port **ports;
   char* portList;
-  //char* separator = {"|"};
 
   int retval = sp_list_ports(&ports);
 
