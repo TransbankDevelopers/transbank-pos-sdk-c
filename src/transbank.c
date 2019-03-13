@@ -60,7 +60,7 @@ static Message CHANGE_TO_NORMAL = {
 void print_ports(){
   struct sp_port **ports;
   int retval = sp_list_ports(&ports);
-  for (int i=0; ports[i]; i++){
+  for (int i=0; ports[i] != NULL; i++){
     printf("%s\n", sp_get_port_name(ports[i]));
   }
 }
@@ -104,11 +104,6 @@ char* get_configured_port_name(){
 
 int select_port(char* portName) {
   int retval = sp_get_port_by_name(portName, &port);
-  if (retval == SP_OK) {
-    printf("Port Selected\n\n");
-  } else {
-    printf("Unable to select Port\n");
-  }
   return retval;
 }
 
