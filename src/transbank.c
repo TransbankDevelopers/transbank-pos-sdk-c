@@ -1,13 +1,8 @@
 #include "transbank.h"
 
 struct sp_port *port;
-struct sp_port_config *config;
 
 static const int DEFAULT_TIMEOUT = 500;
-static const int TBK_BAUD_RATE = 115200;
-static const int TBK_BITS = 8;
-static const int TBK_PARITY = SP_PARITY_NONE;
-static const int TBK_STOP_BITS = 1;
 
 enum HexCodes{
   ACK = 0x06,
@@ -16,6 +11,10 @@ enum HexCodes{
   ETX = 0x03,
   PIPE = 0x7C
 };
+
+static int BITS = 8;
+static int PARITY = SP_PARITY_NONE;
+static int STOP_BITS = 1;
 
 static char GET_TOTALS_MESSAGE[] = {0x02, 0x30, 0x37, 0x30, 0x30, 0x7C, 0x7C, 0x03, 0x04};
 static char LOAD_KEYS_MESSAGE[] = {0x02, 0x30, 0x38, 0x30, 0x30, 0x03, 0x0B};
@@ -65,7 +64,7 @@ void print_ports(){
   }
 }
 
-char * list_ports() {
+char* list_ports() {
   struct sp_port **ports;
   char* portList;
 
@@ -82,8 +81,7 @@ char * list_ports() {
     portList = malloc((separators) + chars * sizeof(char*));
     if (portList != NULL ){
       for (int i = 0; i < separators; i++) {
-        char* name = sp_get_port_name(ports[i]);
-        strcat(portList, name);
+        strcat(portList, sp_get_port_name(ports[i]));
         if (i < separators -1)
         {
           strcat(portList, "|");
@@ -115,14 +113,15 @@ int open_configured_port(){
   return sp_open(port, SP_MODE_WRITE | SP_MODE_READ);
 }
 
-int configure_port() {
+int configure_port(enum tbk_baudrate baud_rate) {
   int retval = 0;
+  struct sp_port_config *config;
 
   retval += sp_new_config(&config);
-  retval += sp_set_config_baudrate(config, TBK_BAUD_RATE);
-  retval += sp_set_config_bits(config, TBK_BITS);
-  retval += sp_set_config_parity(config, TBK_PARITY);
-  retval += sp_set_config_stopbits(config, TBK_STOP_BITS);
+  retval += sp_set_config_baudrate(config, baud_rate);
+  retval += sp_set_config_bits(config, BITS);
+  retval += sp_set_config_parity(config, PARITY);
+  retval += sp_set_config_stopbits(config, STOP_BITS);
 
   retval += sp_set_config(port, config);
   retval = sp_flush(port, SP_BUF_BOTH);
@@ -163,10 +162,10 @@ int read_bytes(char* buf, Message message){
 int read_ack(){
   char buf[1];
   int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
-  if (retval == 1 && buf[1] == ACK)
+  if (retval == 1 && buf[0] == ACK)
     return TBK_OK;
   else
-    return retval;
+    return TBK_NOK;
 }
 
 int get_totals(){
@@ -206,7 +205,7 @@ int load_keys(){
   return TBK_NOK;
 }
 
-int polling(){
+enum tbk_return polling(){
   int tries = 0;
   do
   {

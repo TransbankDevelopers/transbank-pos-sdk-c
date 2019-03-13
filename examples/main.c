@@ -1,16 +1,14 @@
 #include "transbank.h"
-#include <unistd.h>
 
 int main() {
 
   //Select USB Serial Adapter
   //char* portName = "/dev/cu.wchusbserial14240"; //CH340 Chipset
   //char* portName = "/dev/cu.usbserial"; //Prolific AFC
-  char* portName = "COM4";
+  char* portName = "COM3";
 
-  //printf("List all ports\n");
-  //char* ports = list_ports();
-  //printf("%s\n", ports);
+  printf("List all ports\n");
+  printf("%s\n", list_ports());
 
   printf("Selecting Port %s\n", portName);
   int retval = select_port(portName);
@@ -20,7 +18,7 @@ int main() {
     if (retval == TBK_OK)
     {
       puts("Serial port successfully opened.\n");
-      if (configure_port() == TBK_OK)
+      if (configure_port(TBK_115200) == TBK_OK)
       {
         printf("Polling the POS...\n");
         if (polling() == TBK_OK)
