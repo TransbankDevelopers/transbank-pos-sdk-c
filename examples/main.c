@@ -8,10 +8,9 @@ int main() {
   //char* portName = "/dev/cu.usbserial"; //Prolific AFC
   char* portName = "COM4";
 
-  printf("List all ports\n");
-  char* ports = list_ports();
-  printf("%s\n", ports);
-
+  //printf("List all ports\n");
+  //char* ports = list_ports();
+  //printf("%s\n", ports);
 
   printf("Selecting Port %s\n", portName);
   int retval = select_port(portName);
