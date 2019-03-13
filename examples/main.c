@@ -9,12 +9,11 @@ int main() {
   char* portName = "COM4";
 
   printf("List all ports\n");
-  char** ports = list_ports();
-  for (int i=0; i < 3; i++)
-    printf("%s\n", ports[i]);
+  char* ports = list_ports();
+  printf("%s\n", ports);
 
 
-  printf("Selecting Port %s\n", portName);
+ /* printf("Selecting Port %s\n", portName);
   int retval = select_port(portName);
   if ( retval == TBK_OK ){
     printf("Open and Configure port: %s\r\n", get_configured_port_name());
@@ -68,6 +67,6 @@ int main() {
       printf("Unable to open selected port\n");
   }
   else
-    printf("Unable to select specified port\n");
+    printf("Unable to select specified port\n"); */
   return 0;
 }

@@ -65,31 +65,36 @@ void print_ports(){
   }
 }
 
-char ** list_ports() {
+char * list_ports() {
   struct sp_port **ports;
-  char** portList;
+  char* portList;
+  //char* separator = {"|"};
 
   int retval = sp_list_ports(&ports);
 
-  int portSize = 0;
-  for (int i=0; ports[i] != NULL; i++){
-    portSize++;
-  }
-
   if (retval == SP_OK) {
-    portList = malloc(portSize * sizeof(char*));
+    int separators = 0;
+    int chars = 0;
+    for (int i=0; ports[i] != NULL; i++){
+      separators++;
+      chars += strlen(sp_get_port_name(ports[i]));
+    }
+
+    portList = malloc((separators) + chars * sizeof(char*));
     if (portList != NULL ){
-      for (int i = 0; i < portSize; i++) {
+      for (int i = 0; i < separators; i++) {
         char* name = sp_get_port_name(ports[i]);
-        portList[i] = malloc(strlen(name));
-        if (portList[i] != NULL)
+        strcat(portList, name);
+        if (i < separators -1)
         {
-          strcpy(portList[i], name);
+          strcat(portList, "|");
         }
       }
     }
   }else {
-    printf("No serial devices detected\n");
+    char* error = "No serial devices detected\n";
+    portList = malloc(strlen(error) * sizeof(char*));
+    strcpy(portList, error);
   }
   sp_free_port_list(ports);
   return portList;
