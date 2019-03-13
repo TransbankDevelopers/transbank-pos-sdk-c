@@ -1,4 +1,4 @@
-%module transbank
+%module TransbankWrap
 %{
 #include "transbank.h"
 %}
