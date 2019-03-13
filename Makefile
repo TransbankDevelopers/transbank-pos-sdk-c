@@ -6,7 +6,7 @@ build/transbank.o: src/transbank.h src/transbank.c
 	cc -c -g src/transbank.c -o build/transbank.o
 run: build/main build/main.o build/Transbank.o
 	./build/main
-debug: src/main.c src/transbank.h src/transbank.c
+debug: examples/main.c src/transbank.h src/transbank.c
 	export LIBSERIALPORT_DEBUG=1 && ./build/main && unset LIBSERIALPORT_DEBUG
 
 wraper:
