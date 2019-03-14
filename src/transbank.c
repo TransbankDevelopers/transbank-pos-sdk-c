@@ -113,7 +113,7 @@ int open_configured_port(){
   return sp_open(port, SP_MODE_WRITE | SP_MODE_READ);
 }
 
-int configure_port(enum tbk_baudrate baud_rate) {
+int configure_port(int baud_rate) {
   int retval = 0;
   struct sp_port_config *config;
 
@@ -124,7 +124,7 @@ int configure_port(enum tbk_baudrate baud_rate) {
   retval += sp_set_config_stopbits(config, STOP_BITS);
 
   retval += sp_set_config(port, config);
-  retval = sp_flush(port, SP_BUF_BOTH);
+  retval += sp_flush(port, SP_BUF_BOTH);
   sp_free_config(config);
 
   return retval;

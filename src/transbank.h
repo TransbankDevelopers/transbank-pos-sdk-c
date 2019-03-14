@@ -29,11 +29,11 @@ extern char* list_ports();
 
 extern char* get_configured_port_name();
 
-extern int open_configured_port();
+extern enum tbk_return open_configured_port();
 
-extern int select_port(char* portName);
+extern enum tbk_return select_port(char* portName);
 
-extern int configure_port(enum tbk_baudrate baud_rate);
+extern enum tbk_return configure_port(int baud_rate);
 
 extern int get_totals();
 
