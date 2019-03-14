@@ -2,10 +2,7 @@
 
 int main() {
 
-  //Select USB Serial Adapter
-  //char* portName = "/dev/cu.wchusbserial14240"; //CH340 Chipset
-  //char* portName = "/dev/cu.usbserial"; //Prolific AFC
-  char* portName = "COM3";
+  char* portName = "COM4";
 
   printf("List all ports\n");
   printf("%s\n", list_ports());
@@ -25,25 +22,6 @@ int main() {
           printf("POS CONNECTED\n");
         else
           printf("Unable to poll the pos\n");
-
-        //printf("Request to LoadKeys...\n");
-        //if (load_keys() == TBK_OK)
-        //  printf("Keys Loaded OK\n");
-        //else
-        //  printf("Unable to load keys\n");
-
-        //sleep(200);
-        //printf("Get Totals...\n");
-        //if (get_totals() == TBK_OK)
-        //  printf("Totals OK\n");
-        //else
-        //  printf("Unable to get Totals\n");
-
-        //printf("Change to Normal Pos. \n\n");
-        //if (change_normal_mode() == TBK_OK)
-        //  printf("Success\n");
-        //else
-        //  printf("Nothing to do\n");
       }
 
       printf("Press ENTER key to Close Port and Exit\n");
