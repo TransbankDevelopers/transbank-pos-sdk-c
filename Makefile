@@ -12,12 +12,12 @@ debug: examples/main.c src/transbank.h src/transbank.c
 wraper:
 	swig -csharp -o build/transbank_wrap.c -namespace Transbank.POS.Wrapper src/transbank.i
 	cd build && cc -fpic -c ../src/transbank.c transbank_wrap.c -I../src
-	cc -dynamiclib build/transbank.o build/transbank_wrap.o -o build/Transbank.dylib -lserialport
-	sudo cp build/Transbank.dylib /usr/local/lib
+	cc -dynamiclib build/transbank.o build/transbank_wrap.o -o build/TransbankWrap.dylib -lserialport
+	sudo cp build/TransbankWrap.dylib /usr/local/lib
 windows-wraper:
 	swig -csharp -o build/transbank_wrap.c -namespace Transbank.POS.Wrapper src/transbank.i
 	cd build && cc -fpic -c ../src/transbank.c transbank_wrap.c -I../src
-	cc -shared build/transbank.o build/transbank_wrap.o -o build/Transbank.dll -lserialport
-	cp build/Transbank.dll /c/msys64/mingw64/bin
+	cc -shared build/transbank.o build/transbank_wrap.o -o build/TransbankWrap.dll -lserialport
+	cp build/TransbankWrap.dll /c/msys64/mingw64/bin
 clean:
 	rm -rf build/*
