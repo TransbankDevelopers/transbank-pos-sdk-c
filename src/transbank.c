@@ -168,43 +168,6 @@ int read_ack(){
     return TBK_NOK;
 }
 
-int get_totals(){
-  int tries = 0;
-  do
-  {
-    int retval = write_message(GET_TOTALS);
-    if (retval == TBK_OK){
-      char* returnBuf;
-      retval = read_bytes(returnBuf, GET_TOTALS);
-      if (retval == TBK_OK && returnBuf[0] == ACK)
-        return TBK_OK;
-    }
-    tries++;
-  } while (tries < GET_TOTALS.retries);
-  return TBK_NOK;
-}
-
-int load_keys(){
-  int tries = 0;
-  do
-  {
-    int retval = write_message(LOAD_KEYS);
-    if (retval == TBK_OK){
-      char* returnBuf;
-      retval = read_ack();
-      if (retval == TBK_OK && returnBuf[0] == ACK){
-        retval = read_bytes(returnBuf, LOAD_KEYS);
-        if (retval == TBK_OK)
-          for(int i=0; i < sizeof(returnBuf); i++)
-            printf("%0X2",returnBuf[i]);
-      }
-    }
-    tries++;
-  } while (tries < LOAD_KEYS.retries);
-
-  return TBK_NOK;
-}
-
 enum tbk_return polling(){
   int tries = 0;
   do
