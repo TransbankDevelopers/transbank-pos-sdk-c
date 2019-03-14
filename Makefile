@@ -1,12 +1,14 @@
-build/main: build/main.o build/transbank.o
-	cc -o build/main build/main.o build/transbank.o -lserialport
-build/main.o: examples/main.c src/transbank.h
+build/main: build/main.o build/transbank.o build/TransbankSerialUtils.o
+	cc -o build/main build/main.o build/Transbank.o build/TransbankSerialUtils.o -lserialport
+build/main.o: examples/main.c src/transbank.h src/transbank_serial_utils.h
 	cc -c -g examples/main.c -o build/main.o -I./src
 build/transbank.o: src/transbank.h src/transbank.c
-	cc -c -g src/transbank.c -o build/transbank.o
-run: build/main build/main.o build/Transbank.o
+	cc -c -g src/transbank.c -o build/Transbank.o
+build/TransbankSerialUtils.o:
+	cc -c -g src/transbank_serial_utils.c -o build/TransbankSerialUtils.o
+run: build/main build/main.o build/Transbank.o build/TransbankSerialUtils.o src/transbank.c src/transbank.h src/transbank_serial_utils.c src/transbank_serial_utils.h
 	./build/main
-debug: examples/main.c src/transbank.h src/transbank.c
+debug: examples/main.c src/transbank.h src/transbank.c src/transbank_serial_utils. src/transbank_serial_utils.h
 	export LIBSERIALPORT_DEBUG=1 && ./build/main && unset LIBSERIALPORT_DEBUG
 
 wraper:
