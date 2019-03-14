@@ -30,7 +30,7 @@ struct message_t {
 
 static Message GET_TOTALS = {
   .payload = GET_TOTALS_MESSAGE,
-  .payloadSize =7,
+  .payloadSize = 7,
   .responseSize = 21,
   .retries = 1
 };
@@ -64,13 +64,13 @@ void print_ports(){
   }
 }
 
-char* list_ports() {
+char* list_ports(){
   struct sp_port **ports;
   char* portList;
 
   int retval = sp_list_ports(&ports);
 
-  if (retval == SP_OK) {
+  if (retval == SP_OK){
     int separators = 0;
     int chars = 0;
     for (int i=0; ports[i] != NULL; i++){
@@ -79,16 +79,15 @@ char* list_ports() {
     }
 
     portList = malloc((separators) + chars * sizeof(char*));
-    if (portList != NULL ){
-      for (int i = 0; i < separators; i++) {
+    if (portList != NULL){
+      for (int i = 0; i < separators; i++){
         strcat(portList, sp_get_port_name(ports[i]));
-        if (i < separators -1)
-        {
+        if (i < separators -1){
           strcat(portList, "|");
         }
       }
     }
-  }else {
+  } else{
     char* error = "No serial devices detected\n";
     portList = malloc(strlen(error) * sizeof(char*));
     strcpy(portList, error);
@@ -98,13 +97,14 @@ char* list_ports() {
 }
 
 char* get_configured_port_name(){
-  if (port != NULL)
+  if (port != NULL){
     return sp_get_port_name(port);
-  else
+  } else{
     return "No port configured";
+  }
 }
 
-int select_port(char* portName) {
+int select_port(char* portName){
   int retval = sp_get_port_by_name(portName, &port);
   return retval;
 }
@@ -113,7 +113,7 @@ int open_configured_port(){
   return sp_open(port, SP_MODE_WRITE | SP_MODE_READ);
 }
 
-int configure_port(int baud_rate) {
+int configure_port(int baud_rate){
   int retval = 0;
   struct sp_port_config *config;
 
@@ -132,12 +132,11 @@ int configure_port(int baud_rate) {
 
 int write_message(Message message){
   int retval = sp_blocking_write(port, message.payload, message.payloadSize, DEFAULT_TIMEOUT);
-  if (retval == message.payloadSize && sp_drain(port))
-  {
+  if (retval == message.payloadSize && sp_drain(port)){
     retval = TBK_OK;
-  }
-  else
+  } else{
     retval -= message.payloadSize;
+  }
   sp_flush(port, SP_BUF_OUTPUT);
   return retval;
 }
@@ -150,9 +149,9 @@ int reply_ack(){
 int read_bytes(char* buf, Message message){
   memset(buf, 0, message.responseSize);
   int retval = sp_blocking_read_next(port, buf, message.responseSize, DEFAULT_TIMEOUT);
-  if (retval == message.responseSize)
+  if (retval == message.responseSize){
     retval = TBK_OK;
-  else{
+  } else{
     retval -= message.responseSize;
   }
   sp_flush(port, SP_BUF_INPUT);
@@ -162,20 +161,21 @@ int read_bytes(char* buf, Message message){
 int read_ack(){
   char buf[1];
   int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
-  if (retval == 1 && buf[0] == ACK)
+  if (retval == 1 && buf[0] == ACK){
     return TBK_OK;
-  else
+  } else{
     return TBK_NOK;
+  }
 }
 
 enum tbk_return polling(){
   int tries = 0;
-  do
-  {
+  do{
     int retval = write_message(POLLING);
     if (retval == TBK_OK){
-      if (read_ack() == TBK_OK)
+      if (read_ack() == TBK_OK){
         return TBK_OK;
+      }
     }
     tries++;
   } while (tries < POLLING.retries);
@@ -184,14 +184,14 @@ enum tbk_return polling(){
 
 int set_normal_mode(){
   int tries = 0;
-  do
-  {
+  do{
     int retval = write_message(CHANGE_TO_NORMAL);
     if (retval == TBK_OK){
       char* returnBuf;
       retval = read_bytes(returnBuf, CHANGE_TO_NORMAL);
-      if (retval == TBK_OK && returnBuf[0] == ACK)
+      if (retval == TBK_OK && returnBuf[0] == ACK){
         return TBK_OK;
+      }
     }
     tries++;
   } while (tries < CHANGE_TO_NORMAL.retries);

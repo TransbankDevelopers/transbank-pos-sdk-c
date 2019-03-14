@@ -5,7 +5,9 @@
 - git clone git://sigrok.org/libserialport (Also a Dependencie)
 - Driver USB Serial Chipset Prolific: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 
-### osx
+### macOS
+
+This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 
 - brew install automake
 - brew install autoconf
@@ -15,15 +17,15 @@
 
 ### Windows 10
 
-- Visual Studio 2017 + Complemento para Desarrollo escritorio c++
-- Driver USB Serial Chipset CH340: <http://www.wch.cn/download/CH341SER_EXE.html>
-- [msys2 - mingw-w64](http://www.msys2.org/) Seguir las instrucciones en el sitio.
-    - instalar tolchain de mingw
+- Visual Studio 2017 + c++ utilities.
+- USB Serial Chipset driver CH340: <http://www.wch.cn/download/CH341SER_EXE.html> (This depends on the serial adapter you have)
+- [msys2 - mingw-w64](http://www.msys2.org/) follow the instructions in the web site.
+    - instal mingw tolchain
         - 32bits: pacman -S mingw-w64-i686-toolchain
         - 64bits: pacman -S mingw-w64-x86_64-toolchain
-- Swig (puedes usar Chocolatey para instalarlo)
+- Swig (you can use [Chocolatey](https://chocolatey.org/))
 
-### UniX
+### Unix
 
 - build-esentials
 - automake
