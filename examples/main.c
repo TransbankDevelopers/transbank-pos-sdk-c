@@ -9,7 +9,7 @@ int main() {
   printf("Puertos: %s\n", list_ports());
 
   printf("Open Port %s\n", portName);
-  int retval = open_port(portName, TBK_115200);
+  int retval = open_port(portName, 115200);
   if ( retval == TBK_OK ){
     puts("Serial port successfully opened.\n");
     printf("Polling the POS...\n");

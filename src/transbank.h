@@ -12,15 +12,6 @@ enum tbk_return{
     TBK_NOK = -1
 };
 
-enum tbk_baudrate {
-    TBK_1200 = 1200,
-    TBK_2400 = 2400,
-    TBK_4800 = 4800,
-    TBK_9600 = 9600,
-    TBK_19200 = 19200,
-    TBK_115200 = 115200
-};
-
 typedef struct message_t Message;
 
 struct message_t {

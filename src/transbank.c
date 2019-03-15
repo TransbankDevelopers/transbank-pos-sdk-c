@@ -6,6 +6,7 @@ struct sp_port *port;
 static int BITS = 8;
 static int PARITY = SP_PARITY_NONE;
 static int STOP_BITS = 1;
+static int FLOW_CONTROL = SP_FLOWCONTROL_NONE;
 
 static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
 static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
@@ -49,7 +50,7 @@ int configure_port(int baud_rate){
   retval += sp_set_config_bits(config, BITS);
   retval += sp_set_config_parity(config, PARITY);
   retval += sp_set_config_stopbits(config, STOP_BITS);
-
+  retval += sp_set_config_flowcontrol(config, FLOW_CONTROL);
   retval += sp_set_config(port, config);
   retval += sp_flush(port, SP_BUF_BOTH);
   sp_free_config(config);
@@ -59,8 +60,8 @@ int configure_port(int baud_rate){
 
 int open_port(char* portName, int baudrate){
   int retval = sp_get_port_by_name(portName, &port);
+  retval += sp_open(port, SP_MODE_READ_WRITE);
   retval += configure_port(baudrate);
-  retval += sp_open(port, SP_MODE_WRITE | SP_MODE_READ);
   return retval;
 }
 
