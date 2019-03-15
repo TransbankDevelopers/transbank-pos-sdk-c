@@ -1,3 +1,4 @@
+#include "hex_codes.h"
 #include "transbank.h"
 #include "transbank_serial_utils.h"
 
@@ -65,7 +66,7 @@ int open_port(char* portName, int baudrate){
   return retval;
 }
 
-enum tbk_return polling(){
+enum TbkReturn polling(){
   int tries = 0;
   do{
     int retval = write_message(port, POLLING);

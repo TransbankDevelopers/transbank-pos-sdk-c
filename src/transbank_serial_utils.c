@@ -1,3 +1,4 @@
+#include "hex_codes.h"
 #include "transbank_serial_utils.h"
 
 static const int DEFAULT_TIMEOUT = 500;
