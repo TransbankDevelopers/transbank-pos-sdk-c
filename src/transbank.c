@@ -97,7 +97,8 @@ int set_normal_mode(){
 }
 
 int close_port(){
-  sp_flush(port, SP_BUF_BOTH);
+  int retval = sp_flush(port, SP_BUF_BOTH);
+  retval += sp_close(port);
   sp_free_port(port);
-  return sp_close(port);
+  return retval;
 }
