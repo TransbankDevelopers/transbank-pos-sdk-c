@@ -50,7 +50,7 @@ void test_ok_on_tird_trie(void **state){
     assert_int_equal((int)TBK_OK, polling());
 }
 
-const struct CMUnitTest serial_tests[] = {
+const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_pooling_ok),
     cmocka_unit_test(test_pooling_write_nok),
     cmocka_unit_test(test_pooling_ack_nok),
@@ -60,5 +60,5 @@ const struct CMUnitTest serial_tests[] = {
 
 int main(void)
 {
-    return cmocka_run_group_tests(serial_tests, NULL, NULL);
+    return cmocka_run_group_tests(transbank_tests, NULL, NULL);
 }
