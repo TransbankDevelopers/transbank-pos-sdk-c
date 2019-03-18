@@ -30,7 +30,7 @@ windows-wraper:
 
 cmokatest:
 	make
-	cc -o build/test build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=read_ack,--wrap=write_message && ./build/test
+	cc -o build/test_transbank build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=read_ack,--wrap=write_message && ./build/test_transbank
 
 clean:
 	rm -rf build/*
