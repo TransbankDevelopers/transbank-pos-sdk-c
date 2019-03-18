@@ -28,5 +28,8 @@ windows-wraper:
 	cc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dll -lserialport
 	cp build/TransbankWrap.dll /c/msys64/mingw64/bin
 
+cmokatest:
+	cc -o build/test build/transbank.o build/TransbankSerialUtils.o test/test_serial.c -lcmocka -lserialport -I./src -Wl,--wrap=read_ack,--wrap=write_message && ./build/test
+
 clean:
 	rm -rf build/*
