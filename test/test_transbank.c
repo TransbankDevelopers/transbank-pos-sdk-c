@@ -32,7 +32,7 @@ void test_pooling_ack_nok(void **state){
     assert_int_equal((int)TBK_NOK, polling());
 }
 
-void test_ok_on_second_trie(void **state){
+void test_ok_on_second_try(void **state){
     (void) state; /* unused */
     will_return(__wrap_write_message, TBK_NOK);
     will_return(__wrap_write_message, TBK_OK);
@@ -41,7 +41,7 @@ void test_ok_on_second_trie(void **state){
     assert_int_equal((int)TBK_OK, polling());
 }
 
-void test_ok_on_tird_trie(void **state){
+void test_ok_on_third_try(void **state){
     (void) state; /* unused */
     will_return_count(__wrap_write_message, TBK_NOK,2);
     will_return(__wrap_write_message, TBK_OK);
@@ -54,8 +54,8 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_pooling_ok),
     cmocka_unit_test(test_pooling_write_nok),
     cmocka_unit_test(test_pooling_ack_nok),
-    cmocka_unit_test(test_ok_on_second_trie),
-    cmocka_unit_test(test_ok_on_tird_trie)
+    cmocka_unit_test(test_ok_on_second_try),
+    cmocka_unit_test(test_ok_on_third_try)
 };
 
 int main(void)
