@@ -13,6 +13,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - brew install autoconf
 - brew install libtool
 - brew install swig
+- brew install cmoka
 - Driver USB Serial Chipset CH340: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
 
 ### Windows 10
@@ -23,6 +24,9 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
     - instal mingw tolchain
         - 32bits: pacman -S mingw-w64-i686-toolchain
         - 64bits: pacman -S mingw-w64-x86_64-toolchain
+    - install mingw cmoka
+        - 32bits: pacman -S mingw32/mingw-w64-i686-cmocka
+        - 64bits: pacman -S mingw64/mingw-w64-x86_64-cmocka
 - Swig (you can use [Chocolatey](https://chocolatey.org/))
 
 ### Unix
@@ -32,6 +36,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - autoconf
 - libtool
 - swig
+- cmoka
 
 
 ### Build
@@ -42,8 +47,18 @@ cc src/hello.c -o build/hello -lserialport
 
 ### RUN
 
+```bash
 ./build/hello
+```
 
 ### Install
 
 cp buid/transbank.dylib /usr/local/lib
+
+### Test
+The project now uses [cmoka](https://cmocka.org) to run unit test.
+Once you have cmoka installed on yor machine, you can simply do
+
+```bash
+make cmokatest
+```
