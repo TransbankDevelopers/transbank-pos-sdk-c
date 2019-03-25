@@ -66,6 +66,20 @@ int open_port(char* portName, int baudrate){
   return retval;
 }
 
+enum TbkReturn load_keys(){
+  int tries = 0;
+  do{
+    int retval = write_message(port, LOAD_KEYS);
+    if (retval == TBK_OK){
+      if (read_ack(port) == TBK_OK){
+        char* buf;
+        retval = read_bytes(port, buf, LOAD_KEYS);
+      }
+    }
+  } while (tries < LOAD_KEYS.retries);
+  return TBK_NOK;
+}
+
 enum TbkReturn polling(){
   int tries = 0;
   do{
@@ -80,14 +94,12 @@ enum TbkReturn polling(){
   return TBK_NOK;
 }
 
-int set_normal_mode(){
+enum TbkReturn set_normal_mode(){
   int tries = 0;
   do{
     int retval = write_message(port, CHANGE_TO_NORMAL);
     if (retval == TBK_OK){
-      char* returnBuf;
-      retval = read_bytes(port, returnBuf, CHANGE_TO_NORMAL);
-      if (retval == TBK_OK && returnBuf[0] == ACK){
+      if (read_ack(port) == TBK_OK){
         return TBK_OK;
       }
     }
