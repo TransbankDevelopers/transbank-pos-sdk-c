@@ -24,7 +24,7 @@ static Message GET_TOTALS = {
 static Message LOAD_KEYS = {
   .payload = LOAD_KEYS_MESSAGE,
   .payloadSize = 7,
-  .responseSize = 33,
+  .responseSize = 32,
   .retries = 3
 };
 
@@ -66,18 +66,70 @@ int open_port(char* portName, int baudrate){
   return retval;
 }
 
-enum TbkReturn load_keys(){
+char* substring(char* string, ParamInfo info){
+  char* ret = malloc((sizeof(char) * info.length) +1);
+  memset(ret, '\0', sizeof(ret));
+  char cToStr[2];
+  cToStr[1] = '\0';
+  for (int i = info.index; i < (info.index + info.length); i++){
+    cToStr[0] = string[i];
+    strcat(ret, cToStr);
+  }
+  return ret;
+}
+
+LoadKeyCloseResponse* parse_load_keys_response(char* buf){
+
+  ParamInfo function_info = {1,4};
+  ParamInfo responseCode_info = {6,2};
+  ParamInfo commerceCode_info= {9, 12};
+  ParamInfo terminalId_info={22,8};
+
+  LoadKeyCloseResponse* response = malloc(sizeof(response));
+
+  response -> function = strtol(substring(buf,function_info), NULL, 10);
+  response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
+  response -> commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
+  response -> terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
+
+  return response;
+}
+
+LoadKeyCloseResponse load_keys(){
   int tries = 0;
+  int retval, write_ok = TBK_NOK;
+  LoadKeyCloseResponse *rsp;
+
   do{
     int retval = write_message(port, LOAD_KEYS);
     if (retval == TBK_OK){
       if (read_ack(port) == TBK_OK){
-        char* buf;
-        retval = read_bytes(port, buf, LOAD_KEYS);
+        write_ok = TBK_OK;
       }
     }
+    tries++;
+  } while (write_ok == TBK_NOK || tries < LOAD_KEYS.retries);
+
+  char* buf;
+  tries = 0;
+  buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
+
+  int wait = 0;
+  do{
+    if (wait == LOAD_KEYS.responseSize){
+      retval = read_bytes(port, buf, LOAD_KEYS);
+      if (retval == TBK_OK){
+        reply_ack(port);
+        rsp = parse_load_keys_response(buf);
+        return *rsp;
+      } else{
+        tries++;
+      }
+    }
+    wait = sp_input_waiting(port);
   } while (tries < LOAD_KEYS.retries);
-  return TBK_NOK;
+
+  return *rsp;
 }
 
 enum TbkReturn polling(){

@@ -1,7 +1,7 @@
 #include "hex_codes.h"
 #include "transbank_serial_utils.h"
 
-static const int DEFAULT_TIMEOUT = 500;
+static const int DEFAULT_TIMEOUT = 1500;
 
 char* list_ports(){
   struct sp_port **ports;
@@ -44,15 +44,32 @@ char* get_port_name(struct sp_port *port){
 }
 
 int read_bytes(struct sp_port *port, char* buf, Message message){
-  memset(buf, 0, message.responseSize);
-  int retval = sp_blocking_read_next(port, buf, message.responseSize, DEFAULT_TIMEOUT);
-  if (retval == message.responseSize){
-    retval = TBK_OK;
-  } else{
-    retval -= message.responseSize;
+  int retval = TBK_NOK;
+  if (buf != NULL){
+    if (sp_input_waiting(port) > 0){
+      int retval = sp_blocking_read(port, buf, message.responseSize, DEFAULT_TIMEOUT);
+      if (retval == message.responseSize){
+        retval = TBK_OK;
+        sp_flush(port, SP_BUF_INPUT);
+        return retval;
+      } else{
+        retval = TBK_NOK;
+        sp_flush(port, SP_BUF_INPUT);
+        return retval;
+      }
+    } else
+    {
+      char* error = NULL;
+      retval = TBK_NOK;
+      sp_flush(port, SP_BUF_INPUT);
+      return retval;
+    }
+  } else {
+    char* error = NULL;
+    retval = TBK_NOK;
+    sp_flush(port, SP_BUF_INPUT);
+    return retval;
   }
-  sp_flush(port, SP_BUF_INPUT);
-  return retval;
 }
 
 int read_ack(struct sp_port *port){
