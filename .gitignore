@@ -52,7 +52,9 @@ Mkfile.old
 dkms.conf
 
 /build/**
+/wrapper/**
 !/build/**/.gitkeep
+!/wrapper/**/.gitkeep
 .DS_Store
 .vscode
 *.code-workspace

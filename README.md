@@ -39,16 +39,24 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - cmoka
 
 
-### Build
+### Examples
+
+#### Build
 
 ```bash
-cc src/hello.c -o build/hello -lserialport
+make construct example=main
 ```
 
-### RUN
+#### RUN
 
 ```bash
-./build/hello
+make run example=main
+```
+
+#### Debug
+
+```bash
+make debug example=main
 ```
 
 ### Install
