@@ -108,9 +108,12 @@ enum TbkReturn set_normal_mode(){
   return TBK_NOK;
 }
 
-int close_port(){
+enum TbkReturn close_port(){
   int retval = sp_flush(port, SP_BUF_BOTH);
   retval += sp_close(port);
   sp_free_port(port);
+  if (retval == TBK_OK){
+    return TBK_OK;
+  }
   return retval;
 }

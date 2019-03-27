@@ -15,7 +15,7 @@ enum TbkReturn{
 
 extern enum TbkReturn open_port(char* portName, int baudrate);
 extern enum TbkReturn polling();
-extern int set_normal_mode();
-extern int close_port();
+extern enum TbkReturn set_normal_mode();
+extern enum TbkReturn close_port();
 
 #endif
