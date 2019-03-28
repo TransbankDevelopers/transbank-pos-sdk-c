@@ -15,7 +15,7 @@ enum TbkReturn{
 };
 
 extern enum TbkReturn open_port(char* portName, int baudrate);
-extern LoadKeyCloseResponse load_keys();
+extern enum TbkReturn load_keys(LoadKeyCloseResponse* rsp);
 extern enum TbkReturn polling();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();

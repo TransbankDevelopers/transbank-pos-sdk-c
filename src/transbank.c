@@ -78,58 +78,69 @@ char* substring(char* string, ParamInfo info){
   return ret;
 }
 
-LoadKeyCloseResponse* parse_load_keys_response(char* buf){
+enum TbkReturn parse_load_keys_response(LoadKeyCloseResponse* response, char* buf){
 
   ParamInfo function_info = {1,4};
   ParamInfo responseCode_info = {6,2};
   ParamInfo commerceCode_info= {9, 12};
   ParamInfo terminalId_info={22,8};
 
-  LoadKeyCloseResponse* response = malloc(sizeof(response));
-
-  response -> function = strtol(substring(buf,function_info), NULL, 10);
-  response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
-  response -> commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
-  response -> terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
-
-  return response;
+  response = malloc(sizeof(response));
+  if (response != NULL){
+    response -> function = strtol(substring(buf,function_info), NULL, 10);
+    response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
+    response -> commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
+    response -> terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
+    return TBK_OK;
+  } else{
+    return TBK_NOK;
+  }
 }
 
-LoadKeyCloseResponse load_keys(){
+enum TbkReturn load_keys(LoadKeyCloseResponse* rsp){
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  LoadKeyCloseResponse *rsp;
 
   do{
     int retval = write_message(port, LOAD_KEYS);
     if (retval == TBK_OK){
       if (read_ack(port) == TBK_OK){
         write_ok = TBK_OK;
+        break;
       }
     }
     tries++;
-  } while (write_ok == TBK_NOK || tries < LOAD_KEYS.retries);
+  } while ( tries < LOAD_KEYS.retries);
 
-  char* buf;
-  tries = 0;
-  buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
+  if (write_ok == TBK_OK){
+    char* buf;
+    tries = 0;
+    buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
 
-  int wait = 0;
-  do{
-    if (wait == LOAD_KEYS.responseSize){
-      retval = read_bytes(port, buf, LOAD_KEYS);
-      if (retval == TBK_OK){
-        reply_ack(port);
-        rsp = parse_load_keys_response(buf);
-        return *rsp;
-      } else{
-        tries++;
+    int wait = 0;
+    do{
+      if (wait == LOAD_KEYS.responseSize){
+        retval = read_bytes(port, buf, LOAD_KEYS);
+        if (retval == TBK_OK){
+          reply_ack(port);
+          if (parse_load_keys_response(rsp, buf) == TBK_OK){
+            printf("LoadKeys: %p\n", &rsp);
+            printf("Retval: %i\n", retval);
+            printf("Function: %i\n", rsp ->function);
+            printf("Response Code: %i\n", rsp -> responseCode);
+            printf("Commerce Code: %llu\n", rsp -> commerceCode);
+            printf("Terminal ID: %lu\n", rsp -> terminalId);
+            return TBK_OK;
+          }
+        } else{
+          tries++;
+        }
       }
-    }
-    wait = sp_input_waiting(port);
-  } while (tries < LOAD_KEYS.retries);
+      wait = sp_input_waiting(port);
+    } while (tries < LOAD_KEYS.retries);
+  }
 
-  return *rsp;
+  return TBK_NOK;
 }
 
 enum TbkReturn polling(){

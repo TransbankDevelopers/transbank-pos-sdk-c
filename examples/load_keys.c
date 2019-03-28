@@ -8,8 +8,10 @@ int main() {
   if ( retval == TBK_OK ){
     puts("Serial port successfully opened.\n");
 
-    LoadKeyCloseResponse rsp = load_keys();
-    printf("MAIN:\n");
+    LoadKeyCloseResponse rsp;
+    int reval = load_keys(&rsp);
+    printf("MAIN: %p\n", &rsp);
+    printf("Retval: %i\n", retval);
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);
     printf("Commerce Code: %llu\n", rsp.commerceCode);
