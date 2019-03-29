@@ -1,12 +1,14 @@
-build/transbank.o: src/transbank.h src/transbank.c build/TransbankSerialUtils.o
+build/transbank.o: src/transbank.h src/transbank.c
 	cc -c -g src/transbank.c -o build/Transbank.o
 
 build/TransbankSerialUtils.o: src/transbank_serial_utils.h src/transbank_serial_utils.c
 	cc -c -g src/transbank_serial_utils.c -o build/TransbankSerialUtils.o
 
-run: build build/transbank.o build/TransbankSerialUtils.o
+construct: build/transbank.o build/TransbankSerialUtils.o
 	cc -c -g examples/$(example).c -o build/$(example).o -I./src
 	cc -o build/$(example) build/$(example).o build/Transbank.o build/TransbankSerialUtils.o -lserialport
+
+run: build
 	./build/$(example)
 
 debug: build
@@ -26,7 +28,7 @@ windows-wraper:
 
 cmokatest:
 	make
-	cc -o build/test_transbank build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=write_message,--wrap=read_ack,--wrap=read_bytes,--wrap=sp_input_waiting,--wrap=reply_ack && ./build/test_transbank
+	cc -o build/test_transbank build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=read_ack,--wrap=write_message && ./build/test_transbank
 
 clean:
 	rm -rf build/*
