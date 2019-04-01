@@ -12,6 +12,25 @@ int __wrap_read_ack(struct sp_port *port){
     return mock();
 }
 
+int __wrap_read_bytes(struct sp_port *port, char* buf, Message message){
+    char response[] = { 0x02,
+                        0x30, 0x38, 0x31, 0x30, 0x07,
+                        0x30, 0x30, 0x07,
+                        0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x07,
+                        0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x37, 0x03, 0x30, '\0'};
+    strcpy(buf, response);
+    return mock();
+}
+
+int __wrap_sp_input_waiting(struct sp_port *port){
+    return mock();
+}
+
+int __wrap_reply_ack(struct sp_port *port, char* message, int length){
+    return mock();
+}
+
+
 void test_pooling_ok(void **state){
     (void) state; /* unused */
     will_return(__wrap_write_message, TBK_OK);

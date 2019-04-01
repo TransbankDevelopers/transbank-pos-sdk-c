@@ -9,7 +9,7 @@ int main() {
     puts("Serial port successfully opened.\n");
 
     LoadKeyCloseResponse rsp = load_keys();
-    printf("MAIN:\n");
+
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);
     printf("Commerce Code: %llu\n", rsp.commerceCode);
