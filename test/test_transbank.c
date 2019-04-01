@@ -51,7 +51,7 @@ void test_pooling_ack_nok(void **state){
     assert_int_equal((int)TBK_NOK, polling());
 }
 
-void test_ok_on_second_try(void **state){
+void test_pooling_ok_on_second_try(void **state){
     (void) state; /* unused */
     will_return(__wrap_write_message, TBK_NOK);
     will_return(__wrap_write_message, TBK_OK);
@@ -60,7 +60,7 @@ void test_ok_on_second_try(void **state){
     assert_int_equal((int)TBK_OK, polling());
 }
 
-void test_ok_on_third_try(void **state){
+void  test_pooling_ok_on_third_try(void **state){
     (void) state; /* unused */
     will_return_count(__wrap_write_message, TBK_NOK,2);
     will_return(__wrap_write_message, TBK_OK);

@@ -12,6 +12,7 @@ typedef struct{
   int responseCode;
   long long commerceCode;
   long terminalId;
+  int initilized;
 } LoadKeyCloseResponse;
 
 #endif

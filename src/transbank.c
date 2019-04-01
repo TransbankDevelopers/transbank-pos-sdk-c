@@ -91,6 +91,7 @@ LoadKeyCloseResponse* parse_load_keys_response(char* buf){
   response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
   response -> commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
   response -> terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
+  response -> initilized = TBK_OK;
 
   return response;
 }
