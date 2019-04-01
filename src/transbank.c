@@ -71,7 +71,10 @@ char* substring(char* string, ParamInfo info){
   memset(ret, '\0', sizeof(ret));
   char cToStr[2];
   cToStr[1] = '\0';
-  for (int i = info.index; i < (info.index + info.length); i++){
+
+  int limit = info.index + info.length;
+
+  for (int i = info.index; i < limit; i++){
     cToStr[0] = string[i];
     strcat(ret, cToStr);
   }
