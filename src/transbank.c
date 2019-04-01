@@ -106,30 +106,36 @@ LoadKeyCloseResponse load_keys(){
     if (retval == TBK_OK){
       if (read_ack(port) == TBK_OK){
         write_ok = TBK_OK;
+        break;
       }
     }
     tries++;
-  } while (write_ok == TBK_NOK || tries < LOAD_KEYS.retries);
-
-  char* buf;
-  tries = 0;
-  buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
-
-  int wait = 0;
-  do{
-    if (wait == LOAD_KEYS.responseSize){
-      retval = read_bytes(port, buf, LOAD_KEYS);
-      if (retval == TBK_OK){
-        reply_ack(port);
-        rsp = parse_load_keys_response(buf);
-        return *rsp;
-      } else{
-        tries++;
-      }
-    }
-    wait = sp_input_waiting(port);
   } while (tries < LOAD_KEYS.retries);
 
+  if (write_ok == TBK_OK){
+    char* buf;
+    tries = 0;
+    buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do{
+      if (wait == LOAD_KEYS.responseSize){
+        retval = read_bytes(port, buf, LOAD_KEYS);
+        if (retval == TBK_OK){
+          retval = reply_ack(port,buf,LOAD_KEYS.responseSize);
+          if (retval == TBK_OK){
+            rsp = parse_load_keys_response(buf);
+            return *rsp;
+          } else {
+            tries++;
+          }
+        } else{
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < LOAD_KEYS.retries);
+  }
   return *rsp;
 }
 

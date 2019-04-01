@@ -82,9 +82,28 @@ int read_ack(struct sp_port *port){
   }
 }
 
-int reply_ack(struct sp_port *port){
-  char buf[] = {ACK};
-  return sp_blocking_write(port, buf, 1, DEFAULT_TIMEOUT);
+unsigned char calculate_lrc(char* message, int length){
+  unsigned char result = message[1];
+
+  for(int n=2; n < length-1; n++){
+    result ^= (unsigned char)message[n];
+  }
+  return result;
+}
+
+enum TbkReturn reply_ack(struct sp_port *port, char* message, int length){
+  char buf[1] = {NACK};
+  int retval = TBK_NOK;
+
+  unsigned char lrc = calculate_lrc(message, length);
+
+  if(lrc == (unsigned char)message[length-1]){
+    buf[0] = ACK;
+    retval = TBK_OK;
+  }
+
+  retval += 1 - sp_blocking_write(port, buf, 1, DEFAULT_TIMEOUT);
+  return retval;
 }
 
 int write_message(struct sp_port *port, Message message){
