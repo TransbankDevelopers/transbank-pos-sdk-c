@@ -7,6 +7,7 @@
 #include <string.h>
 #include <libserialport.h>
 #include "message.h"
+#include "responses.h"
 
 enum TbkReturn{
     TBK_OK = 0,
@@ -14,8 +15,9 @@ enum TbkReturn{
 };
 
 extern enum TbkReturn open_port(char* portName, int baudrate);
+extern LoadKeyCloseResponse load_keys();
 extern enum TbkReturn polling();
-extern int set_normal_mode();
-extern int close_port();
+extern enum TbkReturn set_normal_mode();
+extern enum TbkReturn close_port();
 
 #endif

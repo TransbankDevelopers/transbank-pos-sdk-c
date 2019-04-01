@@ -1,8 +1,11 @@
-typedef struct message_t Message;
+#ifndef MESSAGEHEADER_FILE
+#define MESSAGEHEADER_FILE
 
-struct message_t {
+typedef struct {
   int payloadSize;
   int responseSize;
   int retries;
   char* payload;
-};
+} Message;
+
+#endif
