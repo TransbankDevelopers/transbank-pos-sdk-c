@@ -22,9 +22,6 @@ int main() {
       printf("Unable to open selected port\n");
   }
 
-  printf("Press ENTER key to Close Port and Exit\n");
-  getchar();
-
   //Close Port
   retval = close_port();
   if(retval == SP_OK){

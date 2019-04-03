@@ -45,31 +45,15 @@ char* get_port_name(struct sp_port *port){
 
 int read_bytes(struct sp_port *port, char* buf, Message message){
   int retval = TBK_NOK;
-  if (buf != NULL){
-    if (sp_input_waiting(port) > 0){
-      int retval = sp_blocking_read(port, buf, message.responseSize, DEFAULT_TIMEOUT);
-      if (retval == message.responseSize){
-        retval = TBK_OK;
-        sp_flush(port, SP_BUF_INPUT);
-        return retval;
-      } else{
-        retval = TBK_NOK;
-        sp_flush(port, SP_BUF_INPUT);
-        return retval;
-      }
-    } else
-    {
-      char* error = NULL;
-      retval = TBK_NOK;
+  if (buf != NULL && sp_input_waiting(port) > 0){
+    int retval = sp_blocking_read_next(port, buf, message.responseSize, DEFAULT_TIMEOUT);
       sp_flush(port, SP_BUF_INPUT);
       return retval;
-    }
-  } else {
-    char* error = NULL;
-    retval = TBK_NOK;
-    sp_flush(port, SP_BUF_INPUT);
-    return retval;
   }
+
+  buf = NULL;
+  sp_flush(port, SP_BUF_INPUT);
+  return retval;
 }
 
 int read_ack(struct sp_port *port){
@@ -91,7 +75,7 @@ unsigned char calculate_lrc(char* message, int length){
   return result;
 }
 
-enum TbkReturn reply_ack(struct sp_port *port, char* message, int length){
+int reply_ack(struct sp_port *port, char* message, int length){
   char buf[1] = {NACK};
   int retval = TBK_NOK;
 
@@ -102,7 +86,7 @@ enum TbkReturn reply_ack(struct sp_port *port, char* message, int length){
     retval = TBK_OK;
   }
 
-  retval += 1 - sp_blocking_write(port, buf, 1, DEFAULT_TIMEOUT);
+  retval += sp_blocking_write(port, buf, 1, DEFAULT_TIMEOUT) - 1;
   return retval;
 }
 

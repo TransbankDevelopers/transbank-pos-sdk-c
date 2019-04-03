@@ -99,6 +99,46 @@ LoadKeyCloseResponse* parse_load_keys_response(char* buf){
   return response;
 }
 
+enum TbkReturn sale(){
+  char msg[] = { 0x02, 0x30, 0x32, 0x30, 0x30, 0x7C, 0x30, 0x30, 0x30, 0x30, 0x32, 0x35, 0x30, 0x30, 0x30, 0x7C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31, 0x7C, 0x7C, 0x7C, 0x30, 0x03, 0x7B };
+
+  printf("Writing Message: %s\n", msg);
+
+  Message message = {
+    .payload = msg,
+    .payloadSize = 28,
+    .responseSize = 146,
+    .retries = 3
+  };
+
+  int retval = write_message(port, message);
+  printf("Retval Write: %i\n", retval);
+
+  int waiting = sp_input_waiting(port);
+  do
+  {
+   waiting = sp_input_waiting(port);
+  } while (waiting <= 0);
+
+  retval = read_ack(port);
+  printf("Retval ACK %i\n", retval);
+
+  waiting = sp_input_waiting(port);
+  do
+  {
+    waiting = sp_input_waiting(port);
+  } while (waiting <= 0);
+
+  char buf[146];
+  retval = sp_blocking_read(port, buf, message.responseSize, 1500);
+  printf("Retval Read %i\n", retval);
+  printf("Readed Mesage:\n%s\n", buf);
+
+  reply_ack(port);
+
+  return TBK_OK;
+}
+
 LoadKeyCloseResponse load_keys(){
   int tries = 0;
   int retval, write_ok = TBK_NOK;
