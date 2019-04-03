@@ -99,10 +99,38 @@ LoadKeyCloseResponse* parse_load_keys_response(char* buf){
   return response;
 }
 
-enum TbkReturn sale(){
-  char msg[] = { 0x02, 0x30, 0x32, 0x30, 0x30, 0x7C, 0x30, 0x30, 0x30, 0x30, 0x32, 0x35, 0x30, 0x30, 0x30, 0x7C, 0x30, 0x30, 0x30, 0x30, 0x30, 0x31, 0x7C, 0x7C, 0x7C, 0x30, 0x03, 0x7B };
+Message prepare_sale_message(long amount, int ticket, bool send_messages){
 
-  printf("Writing Message: %s\n", msg);
+  char operation[] = {STX, 0x30, 0x32, 0x30, 0x30, '\0'};
+  char pipe[] = {PIPE, '\0'};
+  char etx[] = {ETX, '\0'};
+  char lrc_string[] = {0x30, '\0'};
+
+  char ammount_string[10];
+  sprintf(ammount_string, "%09d", amount);
+
+  char ticket_string[7];
+  sprintf(ticket_string, "%06d", ticket);
+
+  char send_message_string[] = {send_messages + '0', '\0'};
+
+  char msg[28];
+  memset(msg,'\0',28);
+
+  strcat(msg, operation);
+  strcat(msg, pipe);
+  strcat(msg, ammount_string),
+  strcat(msg, pipe);
+  strcat(msg, ticket_string);
+  strcat(msg, pipe);
+  strcat(msg, pipe);
+  strcat(msg, pipe);
+  strcat(msg, send_message_string);
+  strcat(msg, etx);
+  strcat(msg, lrc_string);
+
+  unsigned char lrc = calculate_lrc(msg, 28);
+  msg[strlen(msg)-1] = lrc;
 
   Message message = {
     .payload = msg,
@@ -111,32 +139,59 @@ enum TbkReturn sale(){
     .retries = 3
   };
 
-  int retval = write_message(port, message);
-  printf("Retval Write: %i\n", retval);
+  return message;
+}
 
-  int waiting = sp_input_waiting(port);
-  do
-  {
-   waiting = sp_input_waiting(port);
-  } while (waiting <= 0);
+enum TbkReturn complete_sale(){
 
-  retval = read_ack(port);
-  printf("Retval ACK %i\n", retval);
+}
 
-  waiting = sp_input_waiting(port);
-  do
-  {
-    waiting = sp_input_waiting(port);
-  } while (waiting <= 0);
+enum TbkReturn sale(long amount, int ticket, bool send_messages){
+   int tries = 0;
+   int retval, write_ok = TBK_NOK;
 
-  char buf[146];
-  retval = sp_blocking_read(port, buf, message.responseSize, 1500);
-  printf("Retval Read %i\n", retval);
-  printf("Readed Mesage:\n%s\n", buf);
+  Message sale_message = prepare_sale_message(amount, ticket, send_messages);
 
-  reply_ack(port);
+  do{
+    retval = write_message(port, sale_message);
+    if (retval == TBK_OK){
+      retval = read_ack(port);
+      if (retval == TBK_OK){
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  }while(tries < sale_message.retries);
 
-  return TBK_OK;
+  if (write_ok == TBK_OK){
+    char* buf;
+    tries = 0;
+    buf = malloc(sale_message.responseSize * sizeof(char));
+    memset(buf, '\0', sale_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do{
+      if (wait > 0){
+        int readedbytes = read_bytes(port,buf, sale_message);
+        if (readedbytes > 0){
+          sale_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, sale_message.responseSize);
+          if (retval == TBK_OK){
+            printf("Readed Mesage:\n%s\n", buf);
+            return TBK_OK;
+          } else {
+            tries++;
+          }
+        } else {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < sale_message.retries);
+  }
+
+  return TBK_NOK;
 }
 
 LoadKeyCloseResponse load_keys(){
@@ -163,8 +218,8 @@ LoadKeyCloseResponse load_keys(){
     int wait = sp_input_waiting(port);
     do{
       if (wait == LOAD_KEYS.responseSize){
-        retval = read_bytes(port, buf, LOAD_KEYS);
-        if (retval == TBK_OK){
+        int readedbytes = read_bytes(port, buf, LOAD_KEYS);
+        if (readedbytes > 0){
           retval = reply_ack(port,buf,LOAD_KEYS.responseSize);
           if (retval == TBK_OK){
             rsp = parse_load_keys_response(buf);

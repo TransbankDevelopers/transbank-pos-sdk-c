@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <libserialport.h>
 #include "message.h"
 #include "responses.h"
@@ -15,7 +16,7 @@ enum TbkReturn{
 };
 
 extern enum TbkReturn open_port(char* portName, int baudrate);
-extern enum TbkReturn sale();
+extern enum TbkReturn sale(long amount, int ticket, bool send_messages);
 extern LoadKeyCloseResponse load_keys();
 extern enum TbkReturn polling();
 extern enum TbkReturn set_normal_mode();
