@@ -122,6 +122,7 @@ LoadKeyCloseResponse register_close(){
     }
     tries++;
   } while (tries < REGISTER_CLOSE.retries);
+
   if (write_ok == TBK_OK){
     char* buf;
     tries = 0;
