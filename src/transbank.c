@@ -9,14 +9,22 @@ static int PARITY = SP_PARITY_NONE;
 static int STOP_BITS = 1;
 static int FLOW_CONTROL = SP_FLOWCONTROL_NONE;
 
-static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
-static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
-static char POLLING_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
-static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
+static char REGISTER_CLOSE_MESSAGE[]    = {STX, 0x30, 0x35, 0x30, 0x30, PIPE, PIPE, ETX, 0x06};
+static char GET_TOTALS_MESSAGE[]        = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
+static char LOAD_KEYS_MESSAGE[]         = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
+static char POLLING_MESSAGE[]           = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
+static char CHANGE_TO_NORMAL_MESSAGE[]  = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
+
+static Message REGISTER_CLOSE = {
+  .payload = REGISTER_CLOSE_MESSAGE,
+  .payloadSize = 9,
+  .responseSize = 33,
+  .retries = 3,
+};
 
 static Message GET_TOTALS = {
   .payload = GET_TOTALS_MESSAGE,
-  .payloadSize = 7,
+  .payloadSize = 9,
   .responseSize = 21,
   .retries = 1
 };
@@ -81,7 +89,7 @@ char* substring(char* string, ParamInfo info){
   return ret;
 }
 
-LoadKeyCloseResponse* parse_load_keys_response(char* buf){
+LoadKeyCloseResponse* parse_load_keys_close_response(char* buf){
 
   ParamInfo function_info = {1,4};
   ParamInfo responseCode_info = {6,2};
@@ -97,6 +105,49 @@ LoadKeyCloseResponse* parse_load_keys_response(char* buf){
   response -> initilized = TBK_OK;
 
   return response;
+}
+
+LoadKeyCloseResponse register_close(){
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+  LoadKeyCloseResponse *rsp;
+
+  do{
+    int retval = write_message(port, REGISTER_CLOSE);
+    if (retval == TBK_OK){
+      if (read_ack(port) == TBK_OK){
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < REGISTER_CLOSE.retries);
+
+  if (write_ok == TBK_OK){
+    char* buf;
+    tries = 0;
+    buf = malloc(REGISTER_CLOSE.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do{
+      if (wait == REGISTER_CLOSE.responseSize){
+        retval = read_bytes(port, buf, REGISTER_CLOSE);
+        if (retval == TBK_OK){
+          retval = reply_ack(port, buf, REGISTER_CLOSE.responseSize);
+          if (retval == TBK_OK){
+            rsp = parse_load_keys_close_response(buf);
+            return *rsp;
+          } else {
+            tries++;
+          }
+        } else{
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < REGISTER_CLOSE.retries);
+  }
+  return *rsp;
 }
 
 LoadKeyCloseResponse load_keys(){
@@ -125,9 +176,9 @@ LoadKeyCloseResponse load_keys(){
       if (wait == LOAD_KEYS.responseSize){
         retval = read_bytes(port, buf, LOAD_KEYS);
         if (retval == TBK_OK){
-          retval = reply_ack(port,buf,LOAD_KEYS.responseSize);
+          retval = reply_ack(port, buf, LOAD_KEYS.responseSize);
           if (retval == TBK_OK){
-            rsp = parse_load_keys_response(buf);
+            rsp = parse_load_keys_close_response(buf);
             return *rsp;
           } else {
             tries++;
