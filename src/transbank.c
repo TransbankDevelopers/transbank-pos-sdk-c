@@ -174,15 +174,19 @@ enum TbkReturn sale(long amount, int ticket, bool send_messages){
   if (write_ok == TBK_OK){
     char* buf;
     tries = 0;
+    printf("Sale Message Response Size: %i\n", sale_message.responseSize);
     buf = malloc(sale_message.responseSize * sizeof(char));
-    memset(buf, '\0', sale_message.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do{
-      if (wait > 0){
+      if (wait >= 73){
+        printf("Wait: %i\n", wait);
+
         int readedbytes = read_bytes(port,buf, sale_message);
+        printf("Readed Bytes %i\n", readedbytes);
         if (readedbytes > 0){
           sale_message.responseSize = readedbytes;
+          printf("Nes Response Size: %i\n", sale_message.responseSize);
           retval = reply_ack(port, buf, sale_message.responseSize);
           if (retval == TBK_OK){
             printf("Readed Mesage:\n%s\n", buf);
@@ -195,7 +199,6 @@ enum TbkReturn sale(long amount, int ticket, bool send_messages){
         }
       }
       wait = sp_input_waiting(port);
-
     } while (tries < sale_message.retries);
   }
   return TBK_NOK;
