@@ -68,7 +68,6 @@ int read_ack(struct sp_port *port){
 
 unsigned char calculate_lrc(char* message, int length){
   unsigned char result = message[1];
-
   for(int n=2; n < length-1; n++){
     result ^= (unsigned char)message[n];
   }
