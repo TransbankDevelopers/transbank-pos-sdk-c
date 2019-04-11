@@ -14,7 +14,7 @@ int main() {
       printf("Response Code: %i\n", response.responseCode);
       printf("Commerce Code: %llu\n", response.commerceCode);
       printf("Terminal ID: %lu\n", response.terminalId);
-      puts("Keys loaded sucsesfully\n");
+      puts("Register  Closed sucsesfully\n");
     }
   }
 
