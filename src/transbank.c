@@ -18,7 +18,7 @@ static char CHANGE_TO_NORMAL_MESSAGE[]  = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x0
 static Message REGISTER_CLOSE = {
   .payload = REGISTER_CLOSE_MESSAGE,
   .payloadSize = 9,
-  .responseSize = 33,
+  .responseSize = 32,
   .retries = 3,
 };
 
@@ -221,12 +221,13 @@ LoadKeyCloseResponse register_close(){
     char* buf;
     tries = 0;
     buf = malloc(REGISTER_CLOSE.responseSize * sizeof(char));
+    memset(buf, '\0', REGISTER_CLOSE.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do{
-      if (wait == REGISTER_CLOSE.responseSize){
-        retval = read_bytes(port, buf, REGISTER_CLOSE);
-        if (retval == TBK_OK){
+      if (wait > 0){
+        int readedbytes = read_bytes(port, buf, REGISTER_CLOSE);
+        if (read_bytes > 0){
           retval = reply_ack(port, buf, REGISTER_CLOSE.responseSize);
           if (retval == TBK_OK){
             rsp = parse_load_keys_close_response(buf);

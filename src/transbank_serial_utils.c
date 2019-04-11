@@ -81,7 +81,7 @@ int reply_ack(struct sp_port *port, char* message, int length){
 
   unsigned char lrc = calculate_lrc(message, length);
 
-  if(lrc == (unsigned char)message[length-1]){
+  if(lrc == (unsigned char)message[length]){
     buf[0] = ACK;
     retval = TBK_OK;
   }
