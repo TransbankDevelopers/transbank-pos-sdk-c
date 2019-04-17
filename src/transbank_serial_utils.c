@@ -46,7 +46,7 @@ char* get_port_name(struct sp_port *port){
 int read_bytes(struct sp_port *port, char* buf, Message message){
   int retval = TBK_NOK;
   if (buf != NULL && sp_input_waiting(port) > 0){
-    int retval = sp_blocking_read_next(port, buf, message.responseSize, DEFAULT_TIMEOUT);
+    int retval = sp_blocking_read(port, buf, message.responseSize, DEFAULT_TIMEOUT);
       sp_flush(port, SP_BUF_INPUT);
       return retval;
   }
@@ -78,6 +78,8 @@ int reply_ack(struct sp_port *port, char* message, int length){
   char buf[] = {NACK};
   int retval = TBK_NOK;
 
+  sp_flush(port, SP_BUF_BOTH);
+
   for (int i = 0; i < length; i++){
       printf("%02X ", message[i]);
   }
@@ -96,6 +98,7 @@ int reply_ack(struct sp_port *port, char* message, int length){
 }
 
 int write_message(struct sp_port *port, Message message){
+  sp_flush(port, SP_BUF_BOTH);
   int retval = sp_blocking_write(port, message.payload, message.payloadSize, DEFAULT_TIMEOUT);
   if (retval == message.payloadSize && sp_drain(port)){
     retval = TBK_OK;

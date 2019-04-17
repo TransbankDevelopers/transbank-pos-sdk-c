@@ -95,7 +95,7 @@ LoadKeyCloseResponse* parse_load_keys_close_response(char* buf){
   ParamInfo commerceCode_info= {9, 12};
   ParamInfo terminalId_info={22,8};
 
-  LoadKeyCloseResponse* response = malloc(sizeof(response));
+  LoadKeyCloseResponse* response = malloc(sizeof(LoadKeyCloseResponse));
 
   response -> function = strtol(substring(buf,function_info), NULL, 10);
   response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
@@ -148,11 +148,7 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages){
   return message;
 }
 
-enum TbkReturn complete_sale(){
-
-}
-
-enum TbkReturn sale(long amount, int ticket, bool send_messages){
+char* sale(long amount, int ticket, bool send_messages){
    int tries = 0;
    int retval, write_ok = TBK_NOK;
 
@@ -172,25 +168,20 @@ enum TbkReturn sale(long amount, int ticket, bool send_messages){
   }while(tries < sale_message.retries);
 
   if (write_ok == TBK_OK){
-    char* buf;
     tries = 0;
-    printf("Sale Message Response Size: %i\n", sale_message.responseSize);
+    char* buf;
     buf = malloc(sale_message.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do{
-      if (wait >= 73){
-        printf("Wait: %i\n", wait);
+      if (wait > 65){
 
         int readedbytes = read_bytes(port,buf, sale_message);
-        printf("Readed Bytes %i\n", readedbytes);
         if (readedbytes > 0){
           sale_message.responseSize = readedbytes;
-          printf("Nes Response Size: %i\n", sale_message.responseSize);
           retval = reply_ack(port, buf, sale_message.responseSize);
           if (retval == TBK_OK){
-            printf("Readed Mesage:\n%s\n", buf);
-            return TBK_OK;
+            return buf;
           } else {
             tries++;
           }
@@ -200,8 +191,9 @@ enum TbkReturn sale(long amount, int ticket, bool send_messages){
       }
       wait = sp_input_waiting(port);
     } while (tries < sale_message.retries);
+  } else {
+    return "Unable to request sale\n";
   }
-  return TBK_NOK;
 }
 
 LoadKeyCloseResponse register_close(){

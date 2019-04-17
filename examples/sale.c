@@ -9,11 +9,8 @@ int main() {
   if ( retval == TBK_OK ){
 
     printf("New Sale transaction...\n");
-    if ( sale( 12500, 2, false) == TBK_OK){
-      printf("New Sale\n");
-    } else{
-      printf("Error\n");
-    }
+    char * saleResponse = sale( 2500, 2, false);
+    printf("Sale response %s\n", saleResponse);
   } else{
       printf("Unable to open selected port\n");
   }
