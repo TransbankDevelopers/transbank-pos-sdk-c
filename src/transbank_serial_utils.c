@@ -79,15 +79,7 @@ int reply_ack(struct sp_port *port, char* message, int length){
   int retval = TBK_NOK;
 
   sp_flush(port, SP_BUF_BOTH);
-
-  for (int i = 0; i < length; i++){
-      printf("%02X ", message[i]);
-  }
-
-  printf("\nLength %i - %i\n", strlen(message), length);
-
   unsigned char lrc = calculate_lrc(message, length);
-  printf("\nACK: %02X - %02X\n", lrc,  (unsigned char)message[length -1]);
   if(lrc == (unsigned char)message[length -1]){
     buf[0] = ACK;
     retval = TBK_OK;

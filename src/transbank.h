@@ -16,7 +16,7 @@ enum TbkReturn{
 };
 
 extern enum TbkReturn open_port(char* portName, int baudrate);
-extern char* sale(long amount, int ticket, bool send_messages);
+extern char* sale(int amount, int ticket, bool send_messages);
 extern LoadKeyCloseResponse register_close();
 extern LoadKeyCloseResponse load_keys();
 extern enum TbkReturn polling();

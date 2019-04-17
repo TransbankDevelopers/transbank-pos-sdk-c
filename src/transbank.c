@@ -148,7 +148,7 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages){
   return message;
 }
 
-char* sale(long amount, int ticket, bool send_messages){
+char* sale(int amount, int ticket, bool send_messages){
    int tries = 0;
    int retval, write_ok = TBK_NOK;
 
