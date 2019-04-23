@@ -67,7 +67,7 @@ int main()
     printf("Response Code: %i\n", rsp.responseCode);
     printf("Commerce Code: %llu\n", rsp.commerceCode);
     printf("Terminal ID: %lu\n", rsp.terminalId);
-    puts("Register closed sucsesfully\n");
+    puts("Register closed successfully\n");
   }
   //Close Port
   retval = close_port();
