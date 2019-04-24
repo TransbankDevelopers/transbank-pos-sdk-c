@@ -26,8 +26,9 @@ windows-wraper:
 
 cmokatest:
 	make
-	cc -o build/test_transbank build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=write_message,--wrap=read_ack,--wrap=read_bytes,--wrap=sp_input_waiting,--wrap=reply_ack && ./build/test_transbank
-
+	cc -o build/test_transbank build/transbank.o build/TransbankSerialUtils.o test/test_transbank.c -lcmocka -lserialport -I./src -Wl,--wrap=write_message,--wrap=read_ack,--wrap=read_bytes,--wrap=sp_input_waiting,--wrap=reply_ack
+	cc -o build/test_transbank_serial_utils build/TransbankSerialUtils.o test/test_transbank_serial_utils.c -lcmocka -lserialport -I./src -Wl,--wrap=sp_blocking_write
+	echo -e "\nRuning Transbank Test\n" && ./build/test_transbank && echo -e "\nRuning Serial Utils Test\n" && ./build/test_transbank_serial_utils
 clean:
 	rm -rf build/*
 	rm -rf wrapper/*

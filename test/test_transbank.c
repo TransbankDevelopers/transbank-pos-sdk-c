@@ -111,8 +111,8 @@ void test_load_keys_ok(void **state){
     (void) state;
     will_return(__wrap_write_message, TBK_OK);
     will_return(__wrap_read_ack, TBK_OK);
-    will_return(__wrap_read_bytes, TBK_OK);
-    will_return(__wrap_reply_ack, TBK_OK);
+    will_return(__wrap_read_bytes, 33);
+    will_return(__wrap_reply_ack, 0);
     will_return(__wrap_sp_input_waiting, 32);
 
     LoadKeyCloseResponse response = load_keys();
@@ -145,7 +145,7 @@ void test_load_keys_read_bytes_nok(void **state){
     (void) state;
     will_return(__wrap_write_message, TBK_OK);
     will_return(__wrap_read_ack, TBK_OK);
-    will_return_count(__wrap_read_bytes, TBK_NOK, 3);
+    will_return_count(__wrap_read_bytes, -1, 3);
     will_return_count(__wrap_sp_input_waiting, 32, 4);
 
     LoadKeyCloseResponse response = load_keys();
@@ -156,9 +156,9 @@ void test_load_keys_reply_ack_nok(void **state){
     (void) state;
     will_return(__wrap_write_message, TBK_OK);
     will_return(__wrap_read_ack, TBK_OK);
-    will_return_count(__wrap_read_bytes, TBK_OK, 3);
+    will_return_count(__wrap_read_bytes, 33, 3);
     will_return_count(__wrap_sp_input_waiting, 32, 4);
-    will_return_count(__wrap_reply_ack, TBK_NOK, 3);
+    will_return_count(__wrap_reply_ack, -1, 3);
 
     LoadKeyCloseResponse response = load_keys();
     assert_int_equal(NULL, response.initilized);

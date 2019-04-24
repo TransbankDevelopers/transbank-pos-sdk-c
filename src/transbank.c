@@ -90,13 +90,12 @@ char* substring(char* string, ParamInfo info){
 }
 
 LoadKeyCloseResponse* parse_load_keys_close_response(char* buf){
-
   ParamInfo function_info = {1,4};
   ParamInfo responseCode_info = {6,2};
   ParamInfo commerceCode_info= {9, 12};
   ParamInfo terminalId_info={22,8};
 
-  LoadKeyCloseResponse* response = malloc(sizeof(response));
+  LoadKeyCloseResponse* response = malloc(sizeof(LoadKeyCloseResponse));
 
   response -> function = strtol(substring(buf,function_info), NULL, 10);
   response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
@@ -105,6 +104,96 @@ LoadKeyCloseResponse* parse_load_keys_close_response(char* buf){
   response -> initilized = TBK_OK;
 
   return response;
+}
+
+Message prepare_sale_message(long amount, int ticket, bool send_messages){
+  char operation[] = {STX, 0x30, 0x32, 0x30, 0x30, '\0'};
+  char pipe[] = {PIPE, '\0'};
+  char etx[] = {ETX, '\0'};
+  char lrc_string[] = {0x30, '\0'};
+
+  char ammount_string[10];
+  sprintf(ammount_string, "%09d", amount);
+
+  char ticket_string[7];
+  sprintf(ticket_string, "%06d", ticket);
+
+  char send_message_string[] = {send_messages + '0', '\0'};
+
+  char msg[28];
+  memset(msg,'\0',28);
+
+  strcat(msg, operation);
+  strcat(msg, pipe);
+  strcat(msg, ammount_string),
+  strcat(msg, pipe);
+  strcat(msg, ticket_string);
+  strcat(msg, pipe);
+  strcat(msg, pipe);
+  strcat(msg, pipe);
+  strcat(msg, send_message_string);
+  strcat(msg, etx);
+  strcat(msg, lrc_string);
+
+  unsigned char lrc = calculate_lrc(msg, 28);
+  msg[strlen(msg)-1] = lrc;
+
+  Message message = {
+    .payload = msg,
+    .payloadSize = 28,
+    .responseSize = 146,
+    .retries = 3
+  };
+
+  return message;
+}
+
+char* sale(int amount, int ticket, bool send_messages){
+   int tries = 0;
+   int retval, write_ok = TBK_NOK;
+
+  Message sale_message = prepare_sale_message(amount, ticket, send_messages);
+
+  do{
+    retval = write_message(port, sale_message);
+    if (retval == TBK_OK){
+      retval = read_ack(port);
+      if (retval == TBK_OK){
+
+   write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  }while(tries < sale_message.retries);
+
+  if (write_ok == TBK_OK){
+    tries = 0;
+    char* buf;
+    buf = malloc(sale_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do{
+      if (wait > 65){
+
+        int readedbytes = read_bytes(port,buf, sale_message);
+        if (readedbytes > 0){
+          sale_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, sale_message.responseSize);
+          if (retval == TBK_OK){
+            return buf;
+          } else {
+            tries++;
+          }
+        } else {
+            tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < sale_message.retries);
+  } else {
+    return "Unable to request sale\n";
+  }
 }
 
 LoadKeyCloseResponse register_close(){
@@ -130,9 +219,9 @@ LoadKeyCloseResponse register_close(){
 
     int wait = sp_input_waiting(port);
     do{
-      if (wait == REGISTER_CLOSE.responseSize){
-        retval = read_bytes(port, buf, REGISTER_CLOSE);
-        if (retval == TBK_OK){
+      if (wait > 0){
+        int readedbytes = read_bytes(port, buf, REGISTER_CLOSE);
+        if (read_bytes > 0){
           retval = reply_ack(port, buf, REGISTER_CLOSE.responseSize);
           if (retval == TBK_OK){
             rsp = parse_load_keys_close_response(buf);
@@ -174,9 +263,9 @@ LoadKeyCloseResponse load_keys(){
     int wait = sp_input_waiting(port);
     do{
       if (wait == LOAD_KEYS.responseSize){
-        retval = read_bytes(port, buf, LOAD_KEYS);
-        if (retval == TBK_OK){
-          retval = reply_ack(port, buf, LOAD_KEYS.responseSize);
+        int readedbytes = read_bytes(port, buf, LOAD_KEYS);
+        if (readedbytes > 0){
+          retval = reply_ack(port,buf,LOAD_KEYS.responseSize);
           if (retval == TBK_OK){
             rsp = parse_load_keys_close_response(buf);
             return *rsp;

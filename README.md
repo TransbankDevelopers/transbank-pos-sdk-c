@@ -13,7 +13,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - brew install autoconf
 - brew install libtool
 - brew install swig
-- brew install cmoka
+- brew install cmocka
 - Driver USB Serial Chipset CH340: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
 
 ### Windows 10
@@ -36,7 +36,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - autoconf
 - libtool
 - swig
-- cmoka
+- cmocka
 
 
 ### Examples
