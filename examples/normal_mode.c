@@ -36,7 +36,7 @@ int main()
       printf("%i) %s\n", (f + 1), w); // Display option
 
       // Store port (w) in array list
-      ports[f] = malloc(sizeof(w));
+      ports[f] = malloc(strlen(w) * sizeof(char *));
       strcpy(ports[f], w);
 
       f++;
