@@ -66,7 +66,7 @@ int main()
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);
     printf("Commerce Code: %llu\n", rsp.commerceCode);
-    printf("Terminal ID: %lu\n", rsp.terminalId);
+    printf("Terminal ID: %i\n", rsp.terminalId);
     puts("Register closed successfully\n");
   }
   //Close Port

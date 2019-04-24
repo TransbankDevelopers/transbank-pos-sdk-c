@@ -66,7 +66,7 @@ int main()
     printf("Function: %i\n", lcr.function);
     printf("Response Code: %i\n", lcr.responseCode);
     printf("Commerce Code: %llu\n", lcr.commerceCode);
-    printf("Terminal ID: %lu\n", lcr.terminalId);
+    printf("Terminal ID: %i\n", lcr.terminalId);
     puts("Keys loaded successfully.\n=================\n");
 
     //Close Port
