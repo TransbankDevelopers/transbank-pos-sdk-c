@@ -89,13 +89,13 @@ char* substring(char* string, ParamInfo info){
   return ret;
 }
 
-LoadKeyCloseResponse* parse_load_keys_close_response(char* buf){
+BaseResponse* parse_load_keys_close_response(char* buf){
   ParamInfo function_info = {1,4};
   ParamInfo responseCode_info = {6,2};
   ParamInfo commerceCode_info= {9, 12};
   ParamInfo terminalId_info={22,8};
 
-  LoadKeyCloseResponse* response = malloc(sizeof(LoadKeyCloseResponse));
+  BaseResponse* response = malloc(sizeof(BaseResponse));
 
   response -> function = strtol(substring(buf,function_info), NULL, 10);
   response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
@@ -196,10 +196,10 @@ char* sale(int amount, int ticket, bool send_messages){
   }
 }
 
-LoadKeyCloseResponse register_close(){
+BaseResponse register_close(){
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  LoadKeyCloseResponse *rsp;
+  BaseResponse *rsp;
 
   do{
     int retval = write_message(port, REGISTER_CLOSE);
@@ -239,10 +239,10 @@ LoadKeyCloseResponse register_close(){
   return *rsp;
 }
 
-LoadKeyCloseResponse load_keys(){
+BaseResponse load_keys(){
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  LoadKeyCloseResponse *rsp;
+  BaseResponse *rsp;
 
   do{
     int retval = write_message(port, LOAD_KEYS);
