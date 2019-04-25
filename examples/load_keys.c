@@ -8,7 +8,7 @@ int main() {
   if ( retval == TBK_OK ){
     puts("Serial port successfully opened.\n");
 
-    LoadKeyCloseResponse rsp = load_keys();
+    BaseResponse rsp = load_keys();
 
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);
