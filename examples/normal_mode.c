@@ -3,7 +3,6 @@
 
 int main()
 {
-
   // VELOCIDAD COM
   const int bRate = 115200;
   const char sep = '|';
