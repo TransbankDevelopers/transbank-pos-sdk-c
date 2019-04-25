@@ -75,7 +75,7 @@ unsigned char calculate_lrc(char* message, int length){
 }
 
 int reply_ack(struct sp_port *port, char* message, int length){
-  char buf[] = {NACK};
+  char buf[] = {NAK};
   int retval = TBK_NOK;
 
   sp_flush(port, SP_BUF_BOTH);
