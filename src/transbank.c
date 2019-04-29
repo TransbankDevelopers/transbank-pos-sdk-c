@@ -26,7 +26,7 @@ static Message GET_TOTALS = {
     .payload = GET_TOTALS_MESSAGE,
     .payloadSize = 9,
     .responseSize = 21,
-    .retries = 1};
+    .retries = 3};
 
 static Message LOAD_KEYS = {
     .payload = LOAD_KEYS_MESSAGE,
@@ -75,7 +75,7 @@ int open_port(char *portName, int baudrate)
 char *substring(char *string, ParamInfo info)
 {
   char *ret = malloc((sizeof(char) * info.length) + 1);
-  memset(ret, '\0', sizeof(ret));
+  memset(ret, '\0', sizeof(*ret));
   char cToStr[2];
   cToStr[1] = '\0';
 
@@ -115,7 +115,7 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
   char lrc_string[] = {0x30, '\0'};
 
   char ammount_string[10];
-  sprintf(ammount_string, "%09d", amount);
+  sprintf(ammount_string, "%09ld", amount);
 
   char ticket_string[7];
   sprintf(ticket_string, "%06d", ticket);
@@ -370,4 +370,75 @@ enum TbkReturn close_port()
     return TBK_OK;
   }
   return retval;
+}
+
+BaseResponse get_totals()
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+  BaseResponse *rsp;
+
+  do
+  {
+    int retval = write_message(port, GET_TOTALS);
+
+    printf("REVAL : %i \n", retval);
+
+    if (retval == TBK_OK)
+    {
+      if (read_ack(port) == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < GET_TOTALS.retries);
+
+  printf("WRITE OK : %i \n", write_ok);
+
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
+    tries = 0;
+    buf = malloc(GET_TOTALS.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+
+    printf("WAIT VS RESPONSE SIZE : %i -> %i \n", wait, GET_TOTALS.responseSize);
+
+    do
+    {
+      if (wait == GET_TOTALS.responseSize)
+      {
+        int readedbytes = read_bytes(port, buf, GET_TOTALS);
+        if (readedbytes > 0)
+        {
+
+          printf("BUFF : %s \n", buf);
+
+          retval = reply_ack(port, buf, GET_TOTALS.responseSize);
+          if (retval == TBK_OK)
+          {
+            rsp = parse_load_keys_close_response(buf);
+            return *rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+      tries++;
+    } while (tries < GET_TOTALS.retries);
+  }
+
+  printf("END");
+
+  return *rsp;
 }

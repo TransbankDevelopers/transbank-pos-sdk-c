@@ -10,15 +10,17 @@
 #include "message.h"
 #include "responses.h"
 
-enum TbkReturn{
+enum TbkReturn
+{
     TBK_OK = 0,
     TBK_NOK = -1
 };
 
-extern enum TbkReturn open_port(char* portName, int baudrate);
-extern char* sale(int amount, int ticket, bool send_messages);
+extern enum TbkReturn open_port(char *portName, int baudrate);
+extern char *sale(int amount, int ticket, bool send_messages);
 extern BaseResponse register_close();
 extern BaseResponse load_keys();
+extern BaseResponse get_totals();
 extern enum TbkReturn polling();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();
