@@ -60,7 +60,7 @@ int main()
   {
     puts("Serial port successfully opened.\n");
 
-    LoadKeyCloseResponse rsp = register_close();
+    BaseResponse rsp = register_close();
 
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);

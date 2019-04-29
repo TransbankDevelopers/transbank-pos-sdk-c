@@ -60,14 +60,15 @@ int main()
   {
     printf("Serial port successfully opened...\n");
 
-    LoadKeyCloseResponse lcr = load_keys();
+    BaseResponse response = load_keys();
 
     // TODO(lm): Check if response is correct :/
-    printf("Function: %i\n", lcr.function);
-    printf("Response Code: %i\n", lcr.responseCode);
-    printf("Commerce Code: %llu\n", lcr.commerceCode);
-    printf("Terminal ID: %i\n", lcr.terminalId);
+    printf("Function: %i\n", response.function);
+    printf("Response Code: %i\n", response.responseCode);
+    printf("Commerce Code: %llu\n", response.commerceCode);
+    printf("Terminal ID: %i\n", response.terminalId);
     puts("Keys loaded successfully.\n=================\n");
+    
 
     //Close Port
     resp = close_port();
