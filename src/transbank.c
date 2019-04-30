@@ -9,48 +9,45 @@ static int PARITY = SP_PARITY_NONE;
 static int STOP_BITS = 1;
 static int FLOW_CONTROL = SP_FLOWCONTROL_NONE;
 
-static char REGISTER_CLOSE_MESSAGE[]    = {STX, 0x30, 0x35, 0x30, 0x30, PIPE, PIPE, ETX, 0x06};
-static char GET_TOTALS_MESSAGE[]        = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
-static char LOAD_KEYS_MESSAGE[]         = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
-static char POLLING_MESSAGE[]           = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
-static char CHANGE_TO_NORMAL_MESSAGE[]  = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
+static char REGISTER_CLOSE_MESSAGE[] = {STX, 0x30, 0x35, 0x30, 0x30, PIPE, PIPE, ETX, 0x06};
+static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
+static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
+static char POLLING_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
+static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
 
 static Message REGISTER_CLOSE = {
-  .payload = REGISTER_CLOSE_MESSAGE,
-  .payloadSize = 9,
-  .responseSize = 33,
-  .retries = 3,
+    .payload = REGISTER_CLOSE_MESSAGE,
+    .payloadSize = 9,
+    .responseSize = 33,
+    .retries = 3,
 };
 
 static Message GET_TOTALS = {
-  .payload = GET_TOTALS_MESSAGE,
-  .payloadSize = 9,
-  .responseSize = 21,
-  .retries = 1
-};
+    .payload = GET_TOTALS_MESSAGE,
+    .payloadSize = 9,
+    .responseSize = 21,
+    .retries = 1};
 
 static Message LOAD_KEYS = {
-  .payload = LOAD_KEYS_MESSAGE,
-  .payloadSize = 7,
-  .responseSize = 32,
-  .retries = 3
-};
+    .payload = LOAD_KEYS_MESSAGE,
+    .payloadSize = 7,
+    .responseSize = 32,
+    .retries = 3};
 
 static Message POLLING = {
-  .payload = POLLING_MESSAGE,
-  .payloadSize = 7,
-  .responseSize = 1,
-  .retries = 3
-};
+    .payload = POLLING_MESSAGE,
+    .payloadSize = 7,
+    .responseSize = 1,
+    .retries = 3};
 
 static Message CHANGE_TO_NORMAL = {
-  .payload = CHANGE_TO_NORMAL_MESSAGE,
-  .payloadSize = 7,
-  .responseSize = 1,
-  .retries = 3
-};
+    .payload = CHANGE_TO_NORMAL_MESSAGE,
+    .payloadSize = 7,
+    .responseSize = 1,
+    .retries = 3};
 
-int configure_port(int baud_rate){
+int configure_port(int baud_rate)
+{
   int retval = 0;
   struct sp_port_config *config;
 
@@ -67,65 +64,70 @@ int configure_port(int baud_rate){
   return retval;
 }
 
-int open_port(char* portName, int baudrate){
+int open_port(char *portName, int baudrate)
+{
   int retval = sp_get_port_by_name(portName, &port);
   retval += sp_open(port, SP_MODE_READ_WRITE);
   retval += configure_port(baudrate);
   return retval;
 }
 
-char* substring(char* string, ParamInfo info){
-  char* ret = malloc((sizeof(char) * info.length) +1);
-  memset(ret, '\0', sizeof(ret));
+char *substring(char *string, ParamInfo info)
+{
+  char *ret = malloc((sizeof(char) * info.length) + 1);
+  memset(ret, '\0', sizeof(&ret));
   char cToStr[2];
   cToStr[1] = '\0';
 
   int limit = info.index + info.length;
 
-  for (int i = info.index; i < limit; i++){
+  for (int i = info.index; i < limit; i++)
+  {
     cToStr[0] = string[i];
     strcat(ret, cToStr);
   }
   return ret;
 }
 
-BaseResponse* parse_load_keys_close_response(char* buf){
-  ParamInfo function_info = {1,4};
-  ParamInfo responseCode_info = {6,2};
-  ParamInfo commerceCode_info= {9, 12};
-  ParamInfo terminalId_info={22,8};
+BaseResponse *parse_load_keys_close_response(char *buf)
+{
+  ParamInfo function_info = {1, 4};
+  ParamInfo responseCode_info = {6, 2};
+  ParamInfo commerceCode_info = {9, 12};
+  ParamInfo terminalId_info = {22, 8};
 
-  BaseResponse* response = malloc(sizeof(BaseResponse));
+  BaseResponse *response = malloc(sizeof(BaseResponse));
 
-  response -> function = strtol(substring(buf,function_info), NULL, 10);
-  response -> responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
-  response -> commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
-  response -> terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
-  response -> initilized = TBK_OK;
+  response->function = strtol(substring(buf, function_info), NULL, 10);
+  response->responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
+  response->commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
+  response->terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
+  response->initilized = TBK_OK;
 
   return response;
 }
 
-Message prepare_sale_message(long amount, int ticket, bool send_messages){
+Message prepare_sale_message(long amount, int ticket, bool send_messages)
+{
   char operation[] = {STX, 0x30, 0x32, 0x30, 0x30, '\0'};
   char pipe[] = {PIPE, '\0'};
   char etx[] = {ETX, '\0'};
   char lrc_string[] = {0x30, '\0'};
 
   char ammount_string[10];
-  sprintf(ammount_string, "%09d", amount);
+  sprintf(ammount_string, "%09ld", amount);
 
   char ticket_string[7];
   sprintf(ticket_string, "%06d", ticket);
 
-  char send_message_string[] = {send_messages + '0', '\0'};
+  char send_message_string[2] = {send_messages + '0', '\0'};
 
-  char msg[28];
-  memset(msg,'\0',28);
+  char *msg = malloc(sizeof(char) * 28);
+  memset(msg, '\0', sizeof(&msg));
 
   strcat(msg, operation);
   strcat(msg, pipe);
-  strcat(msg, ammount_string),
+  strcat(msg, ammount_string);
   strcat(msg, pipe);
   strcat(msg, ticket_string);
   strcat(msg, pipe);
@@ -136,75 +138,93 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages){
   strcat(msg, lrc_string);
 
   unsigned char lrc = calculate_lrc(msg, 28);
-  msg[strlen(msg)-1] = lrc;
+
+  msg[strlen(msg) - 1] = lrc;
 
   Message message = {
-    .payload = msg,
-    .payloadSize = 28,
-    .responseSize = 146,
-    .retries = 3
-  };
+      .payload = msg,
+      .payloadSize = 28,
+      .responseSize = 146,
+      .retries = 3};
 
   return message;
 }
 
-char* sale(int amount, int ticket, bool send_messages){
-   int tries = 0;
-   int retval, write_ok = TBK_NOK;
+char *sale(int amount, int ticket, bool send_messages)
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
 
   Message sale_message = prepare_sale_message(amount, ticket, send_messages);
 
-  do{
+  do
+  {
     retval = write_message(port, sale_message);
-    if (retval == TBK_OK){
+    if (retval == TBK_OK)
+    {
       retval = read_ack(port);
-      if (retval == TBK_OK){
-
-   write_ok = TBK_OK;
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
         break;
       }
     }
     tries++;
-  }while(tries < sale_message.retries);
+  } while (tries < sale_message.retries);
 
-  if (write_ok == TBK_OK){
+  if (write_ok == TBK_OK)
+  {
     tries = 0;
-    char* buf;
+    char *buf;
     buf = malloc(sale_message.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
-    do{
-      if (wait > 65){
-
-        int readedbytes = read_bytes(port,buf, sale_message);
-        if (readedbytes > 0){
+    do
+    {
+      if (wait > 65)
+      {
+        int readedbytes = read_bytes(port, buf, sale_message);
+        if (readedbytes > 0)
+        {
           sale_message.responseSize = readedbytes;
           retval = reply_ack(port, buf, sale_message.responseSize);
-          if (retval == TBK_OK){
+          if (retval == TBK_OK)
+          {
             return buf;
-          } else {
+          }
+          else
+          {
             tries++;
           }
-        } else {
-            tries++;
+        }
+        else
+        {
+          tries++;
         }
       }
       wait = sp_input_waiting(port);
     } while (tries < sale_message.retries);
-  } else {
+  }
+  else
+  {
     return "Unable to request sale\n";
   }
+  return "Unable to request sale\n";
 }
 
-BaseResponse register_close(){
+BaseResponse register_close()
+{
   int tries = 0;
   int retval, write_ok = TBK_NOK;
   BaseResponse *rsp;
 
-  do{
+  do
+  {
     int retval = write_message(port, REGISTER_CLOSE);
-    if (retval == TBK_OK){
-      if (read_ack(port) == TBK_OK){
+    if (retval == TBK_OK)
+    {
+      if (read_ack(port) == TBK_OK)
+      {
         write_ok = TBK_OK;
         break;
       }
@@ -212,24 +232,33 @@ BaseResponse register_close(){
     tries++;
   } while (tries < REGISTER_CLOSE.retries);
 
-  if (write_ok == TBK_OK){
-    char* buf;
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
     tries = 0;
     buf = malloc(REGISTER_CLOSE.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
-    do{
-      if (wait > 0){
+    do
+    {
+      if (wait > 0)
+      {
         int readedbytes = read_bytes(port, buf, REGISTER_CLOSE);
-        if (read_bytes > 0){
+        if (read_bytes > 0)
+        {
           retval = reply_ack(port, buf, REGISTER_CLOSE.responseSize);
-          if (retval == TBK_OK){
+          if (retval == TBK_OK)
+          {
             rsp = parse_load_keys_close_response(buf);
             return *rsp;
-          } else {
+          }
+          else
+          {
             tries++;
           }
-        } else{
+        }
+        else
+        {
           tries++;
         }
       }
@@ -239,15 +268,19 @@ BaseResponse register_close(){
   return *rsp;
 }
 
-BaseResponse load_keys(){
+BaseResponse load_keys()
+{
   int tries = 0;
   int retval, write_ok = TBK_NOK;
   BaseResponse *rsp;
 
-  do{
+  do
+  {
     int retval = write_message(port, LOAD_KEYS);
-    if (retval == TBK_OK){
-      if (read_ack(port) == TBK_OK){
+    if (retval == TBK_OK)
+    {
+      if (read_ack(port) == TBK_OK)
+      {
         write_ok = TBK_OK;
         break;
       }
@@ -255,24 +288,33 @@ BaseResponse load_keys(){
     tries++;
   } while (tries < LOAD_KEYS.retries);
 
-  if (write_ok == TBK_OK){
-    char* buf;
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
     tries = 0;
     buf = malloc(LOAD_KEYS.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
-    do{
-      if (wait == LOAD_KEYS.responseSize){
+    do
+    {
+      if (wait == LOAD_KEYS.responseSize)
+      {
         int readedbytes = read_bytes(port, buf, LOAD_KEYS);
-        if (readedbytes > 0){
-          retval = reply_ack(port,buf,LOAD_KEYS.responseSize);
-          if (retval == TBK_OK){
+        if (readedbytes > 0)
+        {
+          retval = reply_ack(port, buf, LOAD_KEYS.responseSize);
+          if (retval == TBK_OK)
+          {
             rsp = parse_load_keys_close_response(buf);
             return *rsp;
-          } else {
+          }
+          else
+          {
             tries++;
           }
-        } else{
+        }
+        else
+        {
           tries++;
         }
       }
@@ -282,12 +324,16 @@ BaseResponse load_keys(){
   return *rsp;
 }
 
-enum TbkReturn polling(){
+enum TbkReturn polling()
+{
   int tries = 0;
-  do{
+  do
+  {
     int retval = write_message(port, POLLING);
-    if (retval == TBK_OK){
-      if (read_ack(port) == TBK_OK){
+    if (retval == TBK_OK)
+    {
+      if (read_ack(port) == TBK_OK)
+      {
         return TBK_OK;
       }
     }
@@ -296,12 +342,16 @@ enum TbkReturn polling(){
   return TBK_NOK;
 }
 
-enum TbkReturn set_normal_mode(){
+enum TbkReturn set_normal_mode()
+{
   int tries = 0;
-  do{
+  do
+  {
     int retval = write_message(port, CHANGE_TO_NORMAL);
-    if (retval == TBK_OK){
-      if (read_ack(port) == TBK_OK){
+    if (retval == TBK_OK)
+    {
+      if (read_ack(port) == TBK_OK)
+      {
         return TBK_OK;
       }
     }
@@ -310,11 +360,13 @@ enum TbkReturn set_normal_mode(){
   return TBK_NOK;
 }
 
-enum TbkReturn close_port(){
+enum TbkReturn close_port()
+{
   int retval = sp_flush(port, SP_BUF_BOTH);
   retval += sp_close(port);
   sp_free_port(port);
-  if (retval == TBK_OK){
+  if (retval == TBK_OK)
+  {
     return TBK_OK;
   }
   return retval;

@@ -1,32 +1,37 @@
 #include "transbank.h"
-#include "transbank_serial_utils.h"
+#include "common.c"
 
-int main() {
+int main()
+{
+  char *portName = select_port();
 
-  char* portName = "COM4";
-
-  printf("List all ports\n");
-  printf("Puertos: %s\n", list_ports());
-
-  printf("Open Port %s\n", portName);
-  int retval = open_port(portName, 115200);
-  if ( retval == TBK_OK ){
+  int retval = open_port(portName, bRate);
+  if (retval == TBK_OK)
+  {
     puts("Serial port successfully opened.\n");
     printf("Polling the POS...\n");
-    if (polling() == TBK_OK){
+    if (polling() == TBK_OK)
+    {
       printf("POS CONNECTED\n");
-    } else{
+    }
+    else
+    {
       printf("Unable to poll the pos\n");
     }
-  } else{
-      printf("Unable to open selected port\n");
+  }
+  else
+  {
+    printf("Unable to open selected port\n");
   }
 
   //Close Port
   retval = close_port();
-  if(retval == SP_OK){
+  if (retval == SP_OK)
+  {
     puts("Serial port closed.\n");
-  } else{
+  }
+  else
+  {
     puts("Unable to close serial port.\n");
   }
 
