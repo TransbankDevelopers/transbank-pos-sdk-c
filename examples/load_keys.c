@@ -6,8 +6,8 @@ int main()
 {
   char *portName = select_port();
 
-  int resp = open_port(portName, bRate);
-  if (resp == TBK_OK)
+  int retval = open_port(portName, bRate);
+  if (retval == TBK_OK)
   {
     printf("Serial port successfully opened...\n");
 
@@ -21,8 +21,8 @@ int main()
     puts("Keys loaded successfully.\n=================\n");
 
     //Close Port
-    resp = close_port();
-    if (resp == SP_OK)
+    retval = close_port();
+    if (retval == SP_OK)
     {
       printf("Serial port closed successfully.\n"); // Success!
     }
