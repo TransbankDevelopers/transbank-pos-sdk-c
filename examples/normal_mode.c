@@ -10,14 +10,17 @@ int main()
   {
     puts("Serial port successfully opened.\n");
 
-    BaseResponse rsp = register_close();
-
-    printf("Function: %i\n", rsp.function);
-    printf("Response Code: %i\n", rsp.responseCode);
-    printf("Commerce Code: %llu\n", rsp.commerceCode);
-    printf("Terminal ID: %i\n", rsp.terminalId);
-    puts("Register closed successfully\n");
+    int res = set_normal_mode();
+    if (res == TBK_OK)
+    {
+      puts("Normal model activated successfully\n");
+    }
+    else
+    {
+      puts("Setting Normal mode has failed\n");
+    }
   }
+
   //Close Port
   retval = close_port();
   if (retval == SP_OK)

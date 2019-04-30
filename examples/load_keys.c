@@ -1,27 +1,38 @@
 #include "transbank.h"
-#include "transbank_serial_utils.h"
+#include "common.c"
 
-int main() {
+int main()
+{
+  char *portName = select_port();
 
-  char* portName = "COM4";
-  int retval = open_port(portName, 115200);
-  if ( retval == TBK_OK ){
-    puts("Serial port successfully opened.\n");
+  int retval = open_port(portName, bRate);
+  if (retval == TBK_OK)
+  {
+    printf("Serial port successfully opened...\n");
 
-    BaseResponse rsp = load_keys();
+    BaseResponse response = load_keys();
 
-    printf("Function: %i\n", rsp.function);
-    printf("Response Code: %i\n", rsp.responseCode);
-    printf("Commerce Code: %llu\n", rsp.commerceCode);
-    printf("Terminal ID: %lu\n", rsp.terminalId);
-    puts("Keys loaded sucsesfully\n");
+    // TODO(lm): Check if response is correct :/
+    printf("Function: %i\n", response.function);
+    printf("Response Code: %i\n", response.responseCode);
+    printf("Commerce Code: %llu\n", response.commerceCode);
+    printf("Terminal ID: %i\n", response.terminalId);
+    puts("Keys loaded successfully.\n=================\n");
+
+    //Close Port
+    retval = close_port();
+    if (retval == SP_OK)
+    {
+      printf("Serial port closed successfully.\n"); // Success!
+    }
+    else
+    {
+      puts("Unable to close serial port.\n");
+    }
   }
-  //Close Port
-  retval = close_port();
-  if(retval == SP_OK){
-    puts("Serial port closed.\n");
-  } else{
-    puts("Unable to close serial port.\n");
+  else
+  {
+    puts("Unable to open serial port.\n");
   }
 
   return 0;

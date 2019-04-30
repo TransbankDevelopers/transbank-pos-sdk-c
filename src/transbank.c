@@ -26,7 +26,7 @@ static Message GET_TOTALS = {
     .payload = GET_TOTALS_MESSAGE,
     .payloadSize = 9,
     .responseSize = 21,
-    .retries = 3};
+    .retries = 1};
 
 static Message LOAD_KEYS = {
     .payload = LOAD_KEYS_MESSAGE,
@@ -75,7 +75,7 @@ int open_port(char *portName, int baudrate)
 char *substring(char *string, ParamInfo info)
 {
   char *ret = malloc((sizeof(char) * info.length) + 1);
-  memset(ret, '\0', sizeof(*ret));
+  memset(ret, '\0', sizeof(&ret));
   char cToStr[2];
   cToStr[1] = '\0';
 
@@ -120,15 +120,15 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
   char ticket_string[7];
   sprintf(ticket_string, "%06d", ticket);
 
-  char send_message_string[] = {send_messages + '0', '\0'};
+  char send_message_string[2] = {send_messages + '0', '\0'};
 
-  char msg[28];
-  memset(msg, '\0', 28);
+  char *msg = malloc(sizeof(char) * 28);
+  memset(msg, '\0', sizeof(&msg));
 
   strcat(msg, operation);
   strcat(msg, pipe);
-  strcat(msg, ammount_string),
-      strcat(msg, pipe);
+  strcat(msg, ammount_string);
+  strcat(msg, pipe);
   strcat(msg, ticket_string);
   strcat(msg, pipe);
   strcat(msg, pipe);
@@ -164,7 +164,6 @@ char *sale(int amount, int ticket, bool send_messages)
       retval = read_ack(port);
       if (retval == TBK_OK)
       {
-
         write_ok = TBK_OK;
         break;
       }
@@ -183,7 +182,6 @@ char *sale(int amount, int ticket, bool send_messages)
     {
       if (wait > 65)
       {
-
         int readedbytes = read_bytes(port, buf, sale_message);
         if (readedbytes > 0)
         {
@@ -210,6 +208,7 @@ char *sale(int amount, int ticket, bool send_messages)
   {
     return "Unable to request sale\n";
   }
+  return "Unable to request sale\n";
 }
 
 BaseResponse register_close()
