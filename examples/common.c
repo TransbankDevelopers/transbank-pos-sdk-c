@@ -1,8 +1,5 @@
-#include "transbank.h"
+#include "common.h"
 #include "transbank_serial_utils.h"
-
-// VELOCIDAD COM
-const int bRate = 115200;
 
 char *select_port()
 {

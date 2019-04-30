@@ -1,5 +1,4 @@
 #include "transbank.h"
-#include "transbank_serial_utils.h"
 #include "common.c"
 
 int main()
