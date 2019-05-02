@@ -25,8 +25,8 @@ static Message REGISTER_CLOSE = {
 static Message GET_TOTALS = {
     .payload = GET_TOTALS_MESSAGE,
     .payloadSize = 9,
-    .responseSize = 21,
-    .retries = 1};
+    .responseSize = 18,
+    .retries = 3};
 
 static Message LOAD_KEYS = {
     .payload = LOAD_KEYS_MESSAGE,
@@ -103,6 +103,56 @@ BaseResponse *parse_load_keys_close_response(char *buf)
   response->commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
   response->terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
   response->initilized = TBK_OK;
+
+  return response;
+}
+
+TotalsResponse *parse_get_totals_response(char *buf)
+{
+  TotalsResponse *response = malloc(sizeof(TotalsResponse));
+
+  char *w;
+  int i = 1, l = 0, f = 0;
+  for (int x = i; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|')
+    {
+      w = malloc(l * sizeof(char *));
+      strncpy(w, buf + i, l);
+      w[l] = 0;
+
+      f++;
+      i = x + 1; // Set new position
+      l = 0;
+
+      // Found words
+      switch (f)
+      {
+      case 1:
+        response->function = strtol(w, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(w, NULL, 10);
+        break;
+
+      case 3:
+        response->txCount = strtol(w, NULL, 10);
+        break;
+
+      case 4:
+        response->txTotal = strtol(w, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    l++;
+  }
 
   return response;
 }
@@ -371,21 +421,19 @@ enum TbkReturn close_port()
   return retval;
 }
 
-BaseResponse get_totals()
+TotalsResponse get_totals()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  BaseResponse *rsp;
+  TotalsResponse *rsp;
 
   do
   {
-    int retval = write_message(port, GET_TOTALS);
-
-    printf("REVAL : %i \n", retval);
-
+    retval = write_message(port, GET_TOTALS);
     if (retval == TBK_OK)
     {
-      if (read_ack(port) == TBK_OK)
+      retval = read_ack(port);
+      if (retval == TBK_OK)
       {
         write_ok = TBK_OK;
         break;
@@ -394,8 +442,6 @@ BaseResponse get_totals()
     tries++;
   } while (tries < GET_TOTALS.retries);
 
-  printf("WRITE OK : %i \n", write_ok);
-
   if (write_ok == TBK_OK)
   {
     char *buf;
@@ -403,23 +449,17 @@ BaseResponse get_totals()
     buf = malloc(GET_TOTALS.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
-
-    printf("WAIT VS RESPONSE SIZE : %i -> %i \n", wait, GET_TOTALS.responseSize);
-
     do
     {
-      if (wait == GET_TOTALS.responseSize)
+      if (wait > 10)
       {
         int readedbytes = read_bytes(port, buf, GET_TOTALS);
         if (readedbytes > 0)
         {
-
-          printf("BUFF : %s \n", buf);
-
-          retval = reply_ack(port, buf, GET_TOTALS.responseSize);
+          retval = reply_ack(port, buf, readedbytes);
           if (retval == TBK_OK)
           {
-            rsp = parse_load_keys_close_response(buf);
+            rsp = parse_get_totals_response(buf);
             return *rsp;
           }
           else
@@ -433,11 +473,8 @@ BaseResponse get_totals()
         }
       }
       wait = sp_input_waiting(port);
-      tries++;
     } while (tries < GET_TOTALS.retries);
   }
-
-  printf("END");
 
   return *rsp;
 }
