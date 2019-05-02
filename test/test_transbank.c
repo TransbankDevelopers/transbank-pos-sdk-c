@@ -183,6 +183,23 @@ void test_load_keys_reply_ack_nok(void **state)
     assert_int_equal(NULL, response.initilized);
 }
 
+void test_get_totals_ok(void **state)
+{
+    (void)state;
+    will_return(__wrap_write_message, TBK_OK);
+    will_return(__wrap_read_ack, TBK_OK);
+    will_return(__wrap_read_bytes, 18);
+    will_return(__wrap_reply_ack, 0);
+    will_return(__wrap_sp_input_waiting, 18);
+
+    TotalsResponse response = get_totals();
+
+    assert_int_equal(710, response.function);
+    assert_int_equal(0, response.responseCode);
+    assert_int_equal(1, response.txCount);
+    assert_int_equal(2500, response.txTotal);
+}
+
 const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_pooling_ok),
     cmocka_unit_test(test_pooling_write_nok),
@@ -198,7 +215,9 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_load_keys_nok),
     cmocka_unit_test(test_load_keys_ack_nok),
     cmocka_unit_test(test_load_keys_read_bytes_nok),
-    cmocka_unit_test(test_load_keys_reply_ack_nok)};
+    cmocka_unit_test(test_load_keys_reply_ack_nok),
+    cmocka_unit_test(test_get_totals_ok),
+};
 
 int main(void)
 {
