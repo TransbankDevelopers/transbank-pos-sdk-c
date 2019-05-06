@@ -42,7 +42,7 @@ This instructions asume you have [homebrew](https://brew.sh/) installed.
 - cmocka
 
 
-## Examples
+## Run / Examples & Installation
 
 #### Build
 
@@ -62,13 +62,13 @@ make run example=main
 make debug example=main
 ```
 
-### Installation
+#### Installation
 
 ```bash
 cp build/transbank.dylib /usr/local/lib
 ```
 
-### Test
+#### Test
 The project now uses [cmocka](https://cmocka.org) to run unit test.
 Once you have **cmocka** installed on yor machine, you can simply do:
 
