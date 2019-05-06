@@ -1,4 +1,4 @@
-# Transbank POS SDK in Clang
+# Transbank POS - SDK in Clang
 
 ## Dev
 
@@ -42,7 +42,7 @@ This instructions asume you have [homebrew](https://brew.sh/) installed.
 - cmocka
 
 
-### Examples
+## Examples
 
 #### Build
 
