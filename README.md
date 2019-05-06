@@ -2,11 +2,10 @@
 
 ## Dev
 
-Download and install **libserialport** dependencie ([instructions](https://sigrok.org/wiki/Libserialport))
-```git clone git://sigrok.org/libserialport```
+Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
 
-### Drivers
-- Driver USB Serial **Chipset CH340** for Windows: <http://www.wch.cn/download/CH341SER_EXE.html> (This depends on the serial adapter you have)
+### Drivers (This depends on the serial adapter you have)
+- Driver USB Serial **Chipset CH340** for Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
 - Driver USB Serial **Chipset CH340** for macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
 - Driver USB Serial **Chipset Prolific** for macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 
@@ -51,7 +50,7 @@ This instructions asume you have [homebrew](https://brew.sh/) installed.
 make construct example=main
 ```
 
-#### RUN
+#### Run
 
 ```bash
 make run example=main
@@ -63,9 +62,11 @@ make run example=main
 make debug example=main
 ```
 
-### Install
+### Installation
 
-cp buid/transbank.dylib /usr/local/lib
+```bash
+cp build/transbank.dylib /usr/local/lib
+```
 
 ### Test
 The project now uses [cmocka](https://cmocka.org) to run unit test.
