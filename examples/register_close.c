@@ -10,7 +10,7 @@ int main()
   {
     puts("Serial port successfully opened.\n");
 
-    BaseResponse rsp = register_close();
+    BaseResponse rsp = close();
 
     printf("Function: %i\n", rsp.function);
     printf("Response Code: %i\n", rsp.responseCode);

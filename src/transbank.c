@@ -9,14 +9,14 @@ static int PARITY = SP_PARITY_NONE;
 static int STOP_BITS = 1;
 static int FLOW_CONTROL = SP_FLOWCONTROL_NONE;
 
-static char REGISTER_CLOSE_MESSAGE[] = {STX, 0x30, 0x35, 0x30, 0x30, PIPE, PIPE, ETX, 0x06};
+static char CLOSE_MESSAGE[] = {STX, 0x30, 0x35, 0x30, 0x30, PIPE, PIPE, ETX, 0x06};
 static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX, 0x04};
 static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
-static char POLLING_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
+static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
 
-static Message REGISTER_CLOSE = {
-    .payload = REGISTER_CLOSE_MESSAGE,
+static Message CLOSE = {
+    .payload = CLOSE_MESSAGE,
     .payloadSize = 9,
     .responseSize = 33,
     .retries = 3,
@@ -34,8 +34,8 @@ static Message LOAD_KEYS = {
     .responseSize = 32,
     .retries = 3};
 
-static Message POLLING = {
-    .payload = POLLING_MESSAGE,
+static Message POLL = {
+    .payload = POLL_MESSAGE,
     .payloadSize = 7,
     .responseSize = 1,
     .retries = 3};
@@ -262,7 +262,7 @@ char *sale(int amount, int ticket, bool send_messages)
   return "Unable to request sale\n";
 }
 
-BaseResponse register_close()
+BaseResponse close()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
@@ -270,7 +270,7 @@ BaseResponse register_close()
 
   do
   {
-    int retval = write_message(port, REGISTER_CLOSE);
+    int retval = write_message(port, CLOSE);
     if (retval == TBK_OK)
     {
       if (read_ack(port) == TBK_OK)
@@ -280,23 +280,23 @@ BaseResponse register_close()
       }
     }
     tries++;
-  } while (tries < REGISTER_CLOSE.retries);
+  } while (tries < CLOSE.retries);
 
   if (write_ok == TBK_OK)
   {
     char *buf;
     tries = 0;
-    buf = malloc(REGISTER_CLOSE.responseSize * sizeof(char));
+    buf = malloc(CLOSE.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do
     {
       if (wait > 0)
       {
-        int readedbytes = read_bytes(port, buf, REGISTER_CLOSE);
+        int readedbytes = read_bytes(port, buf, CLOSE);
         if (read_bytes > 0)
         {
-          retval = reply_ack(port, buf, REGISTER_CLOSE.responseSize);
+          retval = reply_ack(port, buf, CLOSE.responseSize);
           if (retval == TBK_OK)
           {
             rsp = parse_load_keys_close_response(buf);
@@ -313,7 +313,7 @@ BaseResponse register_close()
         }
       }
       wait = sp_input_waiting(port);
-    } while (tries < REGISTER_CLOSE.retries);
+    } while (tries < CLOSE.retries);
   }
   return *rsp;
 }
@@ -374,12 +374,12 @@ BaseResponse load_keys()
   return *rsp;
 }
 
-enum TbkReturn polling()
+enum TbkReturn poll()
 {
   int tries = 0;
   do
   {
-    int retval = write_message(port, POLLING);
+    int retval = write_message(port, POLL);
     if (retval == TBK_OK)
     {
       if (read_ack(port) == TBK_OK)
@@ -388,7 +388,7 @@ enum TbkReturn polling()
       }
     }
     tries++;
-  } while (tries < POLLING.retries);
+  } while (tries < POLL.retries);
   return TBK_NOK;
 }
 

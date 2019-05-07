@@ -10,7 +10,7 @@ int main()
   {
     puts("Serial port successfully opened.\n");
     printf("Polling the POS...\n");
-    if (polling() == TBK_OK)
+    if (poll() == TBK_OK)
     {
       printf("POS CONNECTED\n");
     }

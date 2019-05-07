@@ -53,47 +53,47 @@ int __wrap_reply_ack(struct sp_port *port, char *message, int length)
     return mock();
 }
 
-void test_pooling_ok(void **state)
+void test_poll_ok(void **state)
 {
     (void)state; /* unused */
     will_return(__wrap_write_message, TBK_OK);
     will_return(__wrap_read_ack, TBK_OK);
-    assert_int_equal((int)TBK_OK, polling());
+    assert_int_equal((int)TBK_OK, poll());
 }
 
-void test_pooling_write_nok(void **state)
+void test_poll_write_nok(void **state)
 {
     (void)state; /* unused */
     will_return_count(__wrap_write_message, TBK_NOK, 3);
-    assert_int_equal((int)TBK_NOK, polling());
+    assert_int_equal((int)TBK_NOK, poll());
 }
 
-void test_pooling_ack_nok(void **state)
+void test_poll_ack_nok(void **state)
 {
     (void)state; /* unused */
     will_return_count(__wrap_write_message, TBK_OK, 3);
     will_return_count(__wrap_read_ack, TBK_NOK, 3);
-    assert_int_equal((int)TBK_NOK, polling());
+    assert_int_equal((int)TBK_NOK, poll());
 }
 
-void test_pooling_ok_on_second_try(void **state)
+void test_poll_ok_on_second_try(void **state)
 {
     (void)state; /* unused */
     will_return(__wrap_write_message, TBK_NOK);
     will_return(__wrap_write_message, TBK_OK);
     will_return_count(__wrap_read_ack, TBK_OK, 1);
 
-    assert_int_equal((int)TBK_OK, polling());
+    assert_int_equal((int)TBK_OK, poll());
 }
 
-void test_pooling_ok_on_third_try(void **state)
+void test_poll_ok_on_third_try(void **state)
 {
     (void)state; /* unused */
     will_return_count(__wrap_write_message, TBK_NOK, 2);
     will_return(__wrap_write_message, TBK_OK);
     will_return_count(__wrap_read_ack, TBK_OK, 1);
 
-    assert_int_equal((int)TBK_OK, polling());
+    assert_int_equal((int)TBK_OK, poll());
 }
 
 void test_set_normal_mode_ok(void **state)
@@ -228,11 +228,11 @@ void test_get_totals_nok(void **state)
 }
 
 const struct CMUnitTest transbank_tests[] = {
-    cmocka_unit_test(test_pooling_ok),
-    cmocka_unit_test(test_pooling_write_nok),
-    cmocka_unit_test(test_pooling_ack_nok),
-    cmocka_unit_test(test_pooling_ok_on_second_try),
-    cmocka_unit_test(test_pooling_ok_on_third_try),
+    cmocka_unit_test(test_poll_ok),
+    cmocka_unit_test(test_poll_write_nok),
+    cmocka_unit_test(test_poll_ack_nok),
+    cmocka_unit_test(test_poll_ok_on_second_try),
+    cmocka_unit_test(test_poll_ok_on_third_try),
     cmocka_unit_test(test_set_normal_mode_ok),
     cmocka_unit_test(test_set_normal_mode_write_nok),
     cmocka_unit_test(test_set_normal_mode_ack_nok),
