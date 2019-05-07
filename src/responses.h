@@ -22,6 +22,7 @@ typedef struct
   int responseCode;
   int txCount;
   int txTotal;
+  int initilized;
 } TotalsResponse;
 
 #endif

@@ -25,7 +25,7 @@ static Message REGISTER_CLOSE = {
 static Message GET_TOTALS = {
     .payload = GET_TOTALS_MESSAGE,
     .payloadSize = 9,
-    .responseSize = 18,
+    .responseSize = 24,
     .retries = 3};
 
 static Message LOAD_KEYS = {
@@ -154,6 +154,7 @@ TotalsResponse *parse_get_totals_response(char *buf)
     l++;
   }
 
+  response->initilized = TBK_OK;
   return response;
 }
 
@@ -425,7 +426,9 @@ TotalsResponse get_totals()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  TotalsResponse *rsp;
+
+  TotalsResponse *rsp = malloc(sizeof(TotalsResponse));
+  rsp->initilized = TBK_NOK;
 
   do
   {
