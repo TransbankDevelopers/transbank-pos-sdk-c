@@ -16,12 +16,30 @@ int __wrap_read_ack(struct sp_port *port)
 
 int __wrap_read_bytes(struct sp_port *port, char *buf, Message message)
 {
-    char response[] = {0x02,
-                       0x30, 0x38, 0x31, 0x30, 0x07,
-                       0x30, 0x30, 0x07,
-                       0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x07,
-                       0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x37, 0x03, 0x30, '\0'};
-    strcpy(buf, response);
+    char command[5];
+    strncpy(command, message.payload + 1, 4);
+
+    // Get totals
+    if (strcmp(command, "0700") == 0)
+    {
+        char get_total_response[] = {0x02,
+                                     0x30, 0x37, 0x31, 0x30, 0x7C,
+                                     0x30, 0x30, 0x7C,
+                                     0x32, 0x7C,
+                                     0x31, 0x33, 0x36, 0x35, 0x30, 0x7C,
+                                     0x03, 0x06, '\0'};
+        strcpy(buf, get_total_response);
+    }
+    else
+    {
+        char response[] = {0x02,
+                           0x30, 0x38, 0x31, 0x30, 0x07,
+                           0x30, 0x30, 0x07,
+                           0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x07,
+                           0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x37, 0x03, 0x30, '\0'};
+        strcpy(buf, response);
+    }
+
     return mock();
 }
 
@@ -188,16 +206,16 @@ void test_get_totals_ok(void **state)
     (void)state;
     will_return(__wrap_write_message, TBK_OK);
     will_return(__wrap_read_ack, TBK_OK);
-    will_return(__wrap_read_bytes, 18);
+    will_return(__wrap_sp_input_waiting, 32);
+    will_return(__wrap_read_bytes, 19);
     will_return(__wrap_reply_ack, 0);
-    will_return(__wrap_sp_input_waiting, 18);
 
     TotalsResponse response = get_totals();
 
     assert_int_equal(710, response.function);
     assert_int_equal(0, response.responseCode);
-    assert_int_equal(1, response.txCount);
-    assert_int_equal(2500, response.txTotal);
+    assert_int_equal(2, response.txCount);
+    assert_int_equal(13650, response.txTotal);
 }
 
 const struct CMUnitTest transbank_tests[] = {
