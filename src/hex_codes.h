@@ -1,4 +1,5 @@
-enum HexCodes{
+enum HexCodes
+{
   ACK = 0x06,
   NAK = 0x15,
   STX = 0x02,
