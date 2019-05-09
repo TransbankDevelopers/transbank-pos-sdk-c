@@ -244,7 +244,7 @@ BaseResponse close()
       if (wait > 0)
       {
         int readedbytes = read_bytes(port, buf, CLOSE);
-        if (read_bytes > 0)
+        if (readedbytes > 0)
         {
           retval = reply_ack(port, buf, CLOSE.responseSize);
           if (retval == TBK_OK)
