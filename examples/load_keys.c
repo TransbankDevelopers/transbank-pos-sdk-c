@@ -12,12 +12,18 @@ int main()
 
     BaseResponse response = load_keys();
 
-    // TODO(lm): Check if response is correct :/
-    printf("Function: %i\n", response.function);
-    printf("Response Code: %i\n", response.responseCode);
-    printf("Commerce Code: %llu\n", response.commerceCode);
-    printf("Terminal ID: %i\n", response.terminalId);
-    puts("Keys loaded successfully.\n=================\n");
+    if (response.function == 810)
+    {
+      printf("Function: %i\n", response.function);
+      printf("Response Code: %i\n", response.responseCode);
+      printf("Commerce Code: %llu\n", response.commerceCode);
+      printf("Terminal ID: %i\n", response.terminalId);
+      puts("Keys loaded successfully.\n=================\n");
+    }
+    else
+    {
+      puts("Unable load keys on selected port.\n");
+    }
 
     //Close Port
     retval = close_port();

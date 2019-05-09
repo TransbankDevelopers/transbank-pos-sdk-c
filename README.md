@@ -1,33 +1,36 @@
-#
+# Transbank POS - SDK in Clang
 
 ## Dev
 
-- git clone git://sigrok.org/libserialport (Also a Dependencie)
-- Driver USB Serial Chipset Prolific: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
+Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
 
-### macOS
-
-This instructiosn asume you have [homebrew](https://brew.sh/) installed.
-
-- brew install automake
-- brew install autoconf
-- brew install libtool
-- brew install swig
-- brew install cmocka
-- Driver USB Serial Chipset CH340: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
+### Drivers (This depends on the serial adapter you have)
+- Driver USB Serial **Chipset CH340** for Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
+- Driver USB Serial **Chipset CH340** for macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
+- Driver USB Serial **Chipset Prolific** for macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 
 ### Windows 10
 
 - Visual Studio 2017 + c++ utilities.
-- USB Serial Chipset driver CH340: <http://www.wch.cn/download/CH341SER_EXE.html> (This depends on the serial adapter you have)
+
 - [msys2 - mingw-w64](http://www.msys2.org/) follow the instructions in the web site.
-    - instal mingw tolchain
-        - 32bits: pacman -S mingw-w64-i686-toolchain
-        - 64bits: pacman -S mingw-w64-x86_64-toolchain
-    - install mingw cmoka
-        - 32bits: pacman -S mingw32/mingw-w64-i686-cmocka
-        - 64bits: pacman -S mingw64/mingw-w64-x86_64-cmocka
+    - Install mingw tolchain
+        - 32bits: ```pacman -S mingw-w64-i686-toolchain```
+        - 64bits: ```pacman -S mingw-w64-x86_64-toolchain```
+    - Install mingw cmocka
+        - 32bits: ```pacman -S mingw32/mingw-w64-i686-cmocka```
+        - 64bits: ```pacman -S mingw64/mingw-w64-x86_64-cmocka```
 - Swig (you can use [Chocolatey](https://chocolatey.org/))
+
+### macOS
+
+This instructions asume you have [homebrew](https://brew.sh/) installed.
+
+- ```brew install automake```
+- ```brew install autoconf```
+- ```brew install libtool```
+- ```brew install swig```
+- ```brew install cmocka```
 
 ### Unix
 
@@ -39,7 +42,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 - cmocka
 
 
-### Examples
+## Run / Examples & Installation
 
 #### Build
 
@@ -47,7 +50,7 @@ This instructiosn asume you have [homebrew](https://brew.sh/) installed.
 make construct example=main
 ```
 
-#### RUN
+#### Run
 
 ```bash
 make run example=main
@@ -59,14 +62,16 @@ make run example=main
 make debug example=main
 ```
 
-### Install
-
-cp buid/transbank.dylib /usr/local/lib
-
-### Test
-The project now uses [cmoka](https://cmocka.org) to run unit test.
-Once you have cmoka installed on yor machine, you can simply do
+#### Installation
 
 ```bash
-make cmokatest
+cp build/transbank.dylib /usr/local/lib
+```
+
+#### Test
+The project now uses [cmocka](https://cmocka.org) to run unit test.
+Once you have **cmocka** installed on yor machine, you can simply do:
+
+```bash
+make cmocka-test
 ```
