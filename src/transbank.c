@@ -111,37 +111,37 @@ TotalsResponse *parse_get_totals_response(char *buf)
 {
   TotalsResponse *response = malloc(sizeof(TotalsResponse));
 
-  char *w;
-  int i = 1, l = 0, f = 0;
-  for (int x = i; x < strlen(buf); x++)
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
   {
     if (buf[x] == '|')
     {
-      w = malloc(l * sizeof(char *));
-      strncpy(w, buf + i, l);
-      w[l] = 0;
+      word = malloc(length * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
 
-      f++;
-      i = x + 1; // Set new position
-      l = 0;
+      found++;
+      init_pos = x + 1;
+      length = 0;
 
       // Found words
-      switch (f)
+      switch (found)
       {
       case 1:
-        response->function = strtol(w, NULL, 10);
+        response->function = strtol(word, NULL, 10);
         break;
 
       case 2:
-        response->responseCode = strtol(w, NULL, 10);
+        response->responseCode = strtol(word, NULL, 10);
         break;
 
       case 3:
-        response->txCount = strtol(w, NULL, 10);
+        response->txCount = strtol(word, NULL, 10);
         break;
 
       case 4:
-        response->txTotal = strtol(w, NULL, 10);
+        response->txTotal = strtol(word, NULL, 10);
         break;
 
       default:
@@ -151,7 +151,7 @@ TotalsResponse *parse_get_totals_response(char *buf)
       continue;
     }
 
-    l++;
+    length++;
   }
 
   response->initilized = TBK_OK;
