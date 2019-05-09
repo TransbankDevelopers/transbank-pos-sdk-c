@@ -8,7 +8,7 @@ int main()
   int retval = open_port(portName, bRate);
   if (retval == TBK_OK)
   {
-    puts("Serial port successfully opened.\n");
+    printf("Serial port successfully opened.\n");
 
     printf("Getting Totals from POS...\n");
 
@@ -17,25 +17,25 @@ int main()
     {
       printf("POS CONNECTED\n=============\n");
 
-      printf("FUNCTION : %i \n", response.function);
-      printf("RESPONSE : %i \n", response.responseCode);
-      printf("TX COUNT : %i \n", response.txCount);
-      printf("TX TOTAL : %i \n", response.txTotal);
+      printf("Function : %i \n", response.function);
+      printf("Response Code : %i \n", response.responseCode);
+      printf("TX Count : %i \n", response.txCount);
+      printf("TX Total : %i \n", response.txTotal);
     }
     else
     {
-      printf("Unable to obtain totals information\n");
+      printf("Unable to obtain totals information from POS.\n");
     }
 
     //Close Port
     retval = close_port();
     if (retval == SP_OK)
     {
-      puts("Serial port closed.\n");
+      printf("Serial port closed.\n");
     }
     else
     {
-      puts("Unable to close serial port.\n");
+      printf("Unable to close serial port.\n");
     }
   }
   else
