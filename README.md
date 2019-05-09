@@ -4,6 +4,10 @@
 
 Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
 
+For collaborators, if do you use Visual Studio Code please use this extension with **default formatting enabled**:
+
+[C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+
 ### Drivers (This depends on the serial adapter you have)
 - Driver USB Serial **Chipset CH340** for Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
 - Driver USB Serial **Chipset CH340** for macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
