@@ -2,9 +2,11 @@
 
 ## Dev
 
-Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
+Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport))
 
-For collaborators, if do you use Visual Studio Code please use this extension with **default formatting enabled**:
+```git clone git://sigrok.org/libserialport```
+
+*tip:* For collaborators, if do you use Visual Studio Code please use this extension with **default formatting enabled**:
 
 [C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
 
