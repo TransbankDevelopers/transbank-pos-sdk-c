@@ -10,13 +10,20 @@ int main()
   {
     puts("Serial port successfully opened.\n");
 
-    BaseResponse rsp = close();
+    BaseResponse response = close();
 
-    printf("Function: %i\n", rsp.function);
-    printf("Response Code: %i\n", rsp.responseCode);
-    printf("Commerce Code: %llu\n", rsp.commerceCode);
-    printf("Terminal ID: %i\n", rsp.terminalId);
-    puts("Register closed successfully\n");
+    if (response.function == 510)
+    {
+      printf("Function: %i\n", response.function);
+      printf("Response Code: %i\n", response.responseCode);
+      printf("Commerce Code: %llu\n", response.commerceCode);
+      printf("Terminal ID: %i\n", response.terminalId);
+      puts("Register closed successfully\n");
+    }
+    else
+    {
+      puts("Unable close POS\n");
+    }
   }
   //Close Port
   retval = close_port();
