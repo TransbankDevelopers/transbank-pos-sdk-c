@@ -8,7 +8,7 @@ int main()
   int retval = open_port(portName, bRate);
   if (retval == TBK_OK)
   {
-    puts("Serial port successfully opened.\n");
+    printf("Serial port successfully opened.\n");
 
     BaseResponse response = close();
 
@@ -18,22 +18,22 @@ int main()
       printf("Response Code: %i\n", response.responseCode);
       printf("Commerce Code: %llu\n", response.commerceCode);
       printf("Terminal ID: %i\n", response.terminalId);
-      puts("Register closed successfully\n");
+      printf("Register closed successfully\n=================\n");
     }
     else
     {
-      puts("Unable close POS\n");
+      printf("Unable close POS.\n");
     }
   }
   //Close Port
   retval = close_port();
   if (retval == SP_OK)
   {
-    puts("Serial port closed.\n");
+    printf("Serial port closed.\n");
   }
   else
   {
-    puts("Unable to close serial port.\n");
+    printf("Unable to close serial port.\n");
   }
 
   return 0;
