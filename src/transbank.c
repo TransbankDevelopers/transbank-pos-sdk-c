@@ -14,6 +14,7 @@ static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX
 static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
 static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
+static char LAST_SALE_MESSAGE[] = {STX, 0x30, 0x32, 0x35, 0x30, PIPE, ETX, 0x78};
 
 static Message CLOSE = {
     .payload = CLOSE_MESSAGE,
@@ -210,6 +211,74 @@ char *sale(int amount, int ticket, bool send_messages)
     return "Unable to request sale\n";
   }
   return "Unable to request sale\n";
+}
+
+char *last_sale()
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  Message last_sale_message = {
+      .payload = LAST_SALE_MESSAGE,
+      .payloadSize = sizeof(LAST_SALE_MESSAGE),
+      .responseSize = 146,
+      .retries = 3};
+
+  do
+  {
+    retval = write_message(port, last_sale_message);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < last_sale_message.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    tries = 0;
+    char *buf;
+    buf = malloc(last_sale_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, last_sale_message);
+
+        if (readedbytes > 0)
+        {
+          last_sale_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, last_sale_message.responseSize);
+
+          if (retval == TBK_OK)
+          {
+            return buf;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < last_sale_message.retries);
+  }
+  else
+  {
+    return "Unable to request last sale\n";
+  }
+  return "Unable to request last sale\n";
 }
 
 BaseResponse close()
