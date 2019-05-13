@@ -9,7 +9,6 @@ int main()
     if (retval == TBK_OK)
     {
         printf("Serial port successfully opened.\n");
-
         printf("Getting Last Sale from POS...\n");
 
         char *lastSaleResponse = last_sale();
@@ -18,9 +17,6 @@ int main()
         char responseCode[3];
         strncpy(command, lastSaleResponse + 1, 4);
         strncpy(responseCode, lastSaleResponse + 6, 2);
-
-        printf("COMMAND : %s\n", command);
-        printf("RESPONSE CODE : %s\n", responseCode);
 
         if (strcmp(command, "0260") == 0)
         {
