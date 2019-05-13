@@ -216,7 +216,7 @@ BaseResponse close()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  BaseResponse *rsp;
+  BaseResponse *rsp = malloc(sizeof(BaseResponse));
 
   do
   {
