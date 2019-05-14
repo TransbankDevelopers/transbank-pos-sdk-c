@@ -374,8 +374,8 @@ void test_last_sale_ok(void **state)
   (void)state;
   will_return(__wrap_write_message, TBK_OK);
   will_return(__wrap_read_ack, TBK_OK);
-  will_return(__wrap_sp_input_waiting, 70);
-  will_return(__wrap_read_bytes, 70);
+  will_return(__wrap_sp_input_waiting, 98);
+  will_return(__wrap_read_bytes, 98);
   will_return(__wrap_reply_ack, 0);
 
   char *response = last_sale();
@@ -416,22 +416,22 @@ void test_last_sale_read_bytes_nok(void **state)
   will_return(__wrap_write_message, TBK_OK);
   will_return(__wrap_read_ack, TBK_OK);
   will_return_count(__wrap_read_bytes, -1, 3);
-  will_return_count(__wrap_sp_input_waiting, 70, 4);
+  will_return_count(__wrap_sp_input_waiting, 98, 4);
 
   char *response = last_sale();
   assert_int_equal(0, strcmp("Unable to request last sale\n", response));
 }
 
-void test_last_ale_reply_ack_nok(void **state)
+void test_last_sale_reply_ack_nok(void **state)
 {
   (void)state;
   will_return(__wrap_write_message, TBK_OK);
   will_return(__wrap_read_ack, TBK_OK);
-  will_return_count(__wrap_read_bytes, 70, 3);
-  will_return_count(__wrap_sp_input_waiting, 70, 4);
+  will_return_count(__wrap_read_bytes, 98, 3);
+  will_return_count(__wrap_sp_input_waiting, 98, 4);
   will_return_count(__wrap_reply_ack, -1, 3);
 
-  char *response = sale(2500, 1, false);
+  char *response = last_sale();
   assert_int_equal(0, strcmp("Unable to request last sale\n", response));
 }
 
