@@ -50,6 +50,15 @@ int __wrap_read_bytes(struct sp_port *port, char *buf, Message message)
                        0x03, 0x30, '\0'};
     strcpy(buf, response);
   }
+  else if (strcmp(command, "0700") == 0) // Get Totals
+  {
+    char response[] = {0x02,
+                       0x30, 0x37, 0x31, 0x30, 0x7C,
+                       0x30, 0x30, 0x7C, 0x31, 0x7C,
+                       0x32, 0x35, 0x30, 0x30, 0x7C,
+                       0x03, 0x33, '\0'};
+    strcpy(buf, response);
+  }
 
   return mock();
 }
@@ -358,14 +367,39 @@ void test_get_totals_ok(void **state)
 
   assert_int_equal(710, response.function);
   assert_int_equal(0, response.responseCode);
-  assert_int_equal(2, response.txCount);
-  assert_int_equal(13650, response.txTotal);
+  assert_int_equal(1, response.txCount);
+  assert_int_equal(2500, response.txTotal);
 }
 
 void test_get_totals_nok(void **state)
 {
   (void)state;
   will_return_count(__wrap_write_message, TBK_NOK, 3);
+
+  TotalsResponse response = get_totals();
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_get_totals_read_bytes_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, -1, 3);
+  will_return_count(__wrap_sp_input_waiting, 32, 4);
+
+  TotalsResponse response = get_totals();
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_get_totals_reply_ack_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, 19, 3);
+  will_return_count(__wrap_sp_input_waiting, 32, 4);
+  will_return_count(__wrap_reply_ack, -1, 3);
 
   TotalsResponse response = get_totals();
   assert_int_equal(TBK_NOK, response.initilized);
@@ -398,7 +432,9 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_sale_read_bytes_nok),
     cmocka_unit_test(test_sale_reply_ack_nok),
     cmocka_unit_test(test_get_totals_ok),
-    cmocka_unit_test(test_get_totals_nok)};
+    cmocka_unit_test(test_get_totals_nok),
+    cmocka_unit_test(test_get_totals_read_bytes_nok),
+    cmocka_unit_test(test_get_totals_reply_ack_nok)};
 
 int main(void)
 {
