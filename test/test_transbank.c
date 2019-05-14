@@ -71,6 +71,7 @@ int __wrap_read_bytes(struct sp_port *port, char *buf, Message message)
                        0x30, 0x7C,
                        0x30, 0x7C,
                        0x03, 0x78, '\0'};
+    strcpy(buf, response);
   }
   else if (strcmp(command, "0700") == 0) // Get Totals
   {
