@@ -16,4 +16,13 @@ typedef struct
   int initilized;
 } BaseResponse;
 
+typedef struct
+{
+  int function;
+  int responseCode;
+  int txCount;
+  int txTotal;
+  int initilized;
+} TotalsResponse;
+
 #endif
