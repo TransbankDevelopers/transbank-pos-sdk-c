@@ -461,7 +461,6 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_sale_ack_nok),
     cmocka_unit_test(test_sale_read_bytes_nok),
     cmocka_unit_test(test_sale_reply_ack_nok),
-
     cmocka_unit_test(test_last_sale_ok),
     cmocka_unit_test(test_last_sale_nok),
     cmocka_unit_test(test_last_sale_ack_nok),
