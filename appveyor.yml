@@ -1,0 +1,45 @@
+version: '1.0.{build}'
+image: Visual Studio 2017
+environment:
+  matrix:
+    - BUILD_TYPE: Release
+      COMPILER: MinGW-w64
+      PLATFORM: x64
+    - BUILD_TYPE: Release
+      COMPILER: MinGW
+      PLATFORM: Win32
+install:
+# Rename sh.exe as sh.exe in PATH interferes with MinGW
+- rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
+
+# Download MinGW toolchain
+- if [%COMPILER%]==[MinGW] set PATH=C:\MinGW\bin;%PATH%
+- if [%COMPILER%]==[MinGW] mingw-get update
+- if [%COMPILER%]==[MinGW] pacman -S mingw-w64-i686-toolchain
+- if [%COMPILER%]==[MinGW] pacman -S mingw32/mingw-w64-i686-cmocka
+
+# Download MinGW-w64 toolchain
+- if [%COMPILER%]==[MinGW-w64] set PATH=C:\mingw64\bin;%PATH%
+- if [%COMPILER%]==[MinGW-w64] mingw-get update
+- if [%COMPILER%]==[MinGW-w64] pacman -S mingw-w64-x86_64-toolchain
+- if [%COMPILER%]==[MinGW-w64] pacman -S mingw64/mingw-w64-x86_64-cmocka
+
+- choco install swig
+
+build_script:
+- make
+- rm ./wrapper/.gitkeep
+- rm ./wrapper/transbank_wrap.c
+
+test_script:
+- make cmocka-test
+
+artifacts:
+  - path: build\TransbankWrap.dll
+    name: Wrapper
+  - path: wrapper
+    name: Csharp Clases
+    type: zip
+
+on_success:
+- cd C:\
