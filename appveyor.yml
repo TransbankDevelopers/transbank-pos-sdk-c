@@ -13,14 +13,12 @@ install:
 - rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
 
 # Download MinGW toolchain
-- if [%COMPILER%]==[MinGW] set PATH=C:\MinGW\bin;%PATH%
-- if [%COMPILER%]==[MinGW] pacman -S mingw-w64-i686-toolchain
-- if [%COMPILER%]==[MinGW] pacman -S mingw32/mingw-w64-i686-cmocka
+- if [%COMPILER%]==[MinGW] C:\msys64 pacman -S mingw-w64-i686-toolchain
+- if [%COMPILER%]==[MinGW] C:\msys64 pacman -S mingw32/mingw-w64-i686-cmocka
 
 # Download MinGW-w64 toolchain
-- if [%COMPILER%]==[MinGW-w64] set PATH=C:\mingw64\bin;%PATH%
-- if [%COMPILER%]==[MinGW-w64] pacman -S mingw-w64-x86_64-toolchain
-- if [%COMPILER%]==[MinGW-w64] pacman -S mingw64/mingw-w64-x86_64-cmocka
+- if [%COMPILER%]==[MinGW-w64] C:\msys64 pacman -S mingw-w64-x86_64-toolchain
+- if [%COMPILER%]==[MinGW-w64] C:\msys64 pacman -S mingw64/mingw-w64-x86_64-cmocka
 
 - choco install swig
 
