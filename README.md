@@ -47,7 +47,7 @@ This instructions asume you have [homebrew](https://brew.sh/) installed.
 #### Build
 
 ```bash
-make construct example=main
+make build example=main
 ```
 
 #### Run
