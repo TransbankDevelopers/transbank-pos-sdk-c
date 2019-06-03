@@ -550,3 +550,105 @@ TotalsResponse get_totals()
 
   return *rsp;
 }
+
+Message prepare_cancellation_message(int transactionID)
+{
+  const int payloadSize = 15;
+  const int responseSize = 46;
+
+  char command[] = {STX, 0x31, 0x32, 0x30, 0x30, '\0'};
+  char pipe[] = {PIPE, '\0'};
+  char etx[] = {ETX, '\0'};
+  char lrc_string[] = {0x30, '\0'};
+
+  char transaction_string[7];
+  sprintf(transaction_string, "%06d", transactionID);
+
+  char *msg = malloc(sizeof(char) * payloadSize);
+  memset(msg, '\0', sizeof(&msg));
+
+  strcat(msg, command);
+  strcat(msg, pipe);
+  strcat(msg, transaction_string);
+  strcat(msg, pipe);
+  strcat(msg, etx);
+  strcat(msg, lrc_string);
+
+  unsigned char lrc = calculate_lrc(msg, payloadSize);
+  msg[strlen(msg) - 1] = lrc;
+
+  Message message = {
+      .payload = msg,
+      .payloadSize = payloadSize,
+      .responseSize = responseSize,
+      .retries = 3};
+
+  return message;
+}
+
+char *cancellation(int transactionID)
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  Message cancellation_message = prepare_cancellation_message(transactionID);
+
+  do
+  {
+    retval = write_message(port, cancellation_message);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < cancellation_message.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    tries = 0;
+    char *buf;
+    buf = malloc(cancellation_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      printf("DO \n");
+      printf("WAIT VAL : %d\n", wait);
+
+      if (wait > 4)
+      {
+        int readedbytes = read_bytes(port, buf, cancellation_message);
+        if (readedbytes > 0)
+        {
+          printf("READED BYTES : %d\n", readedbytes);
+
+          cancellation_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, cancellation_message.responseSize);
+          if (retval == TBK_OK)
+          {
+            return buf;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < cancellation_message.retries);
+  }
+  else
+  {
+    return "Unable to request Cancellation\n";
+  }
+  return "Unable to request Cancellation\n";
+}
