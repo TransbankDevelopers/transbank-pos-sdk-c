@@ -617,16 +617,11 @@ char *cancellation(int transactionID)
     int wait = sp_input_waiting(port);
     do
     {
-      printf("DO \n");
-      printf("WAIT VAL : %d\n", wait);
-
-      if (wait > 4)
+      if (wait > 0)
       {
         int readedbytes = read_bytes(port, buf, cancellation_message);
         if (readedbytes > 0)
         {
-          printf("READED BYTES : %d\n", readedbytes);
-
           cancellation_message.responseSize = readedbytes;
           retval = reply_ack(port, buf, cancellation_message.responseSize);
           if (retval == TBK_OK)
