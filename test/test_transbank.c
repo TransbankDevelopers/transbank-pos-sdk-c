@@ -536,6 +536,31 @@ void test_cancellation_nok(void **state)
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
+void test_cancellation_read_bytes_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, -1, 3);
+  will_return_count(__wrap_sp_input_waiting, 34, 4);
+
+  CancellationResponse response = cancellation(9);
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_cancellation_reply_ack_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, 15, 3);
+  will_return_count(__wrap_sp_input_waiting, 34, 4);
+  will_return_count(__wrap_reply_ack, -1, 3);
+
+  CancellationResponse response = cancellation(9);
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
 const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_poll_ok),
     cmocka_unit_test(test_poll_write_nok),
@@ -572,7 +597,8 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_get_totals_read_bytes_nok),
     cmocka_unit_test(test_get_totals_reply_ack_nok),
     cmocka_unit_test(test_cancellation_ok),
-    cmocka_unit_test(test_cancellation_nok)};
+    cmocka_unit_test(test_cancellation_nok),
+    cmocka_unit_test(test_cancellation_read_bytes_nok)};
 
 int main(void)
 {
