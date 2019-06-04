@@ -28,27 +28,35 @@ int main()
       switch (response.responseCode)
       {
       case -1:
-        printf("Response Message: \"Operación Cancelada\" \n");
+        printf("Response Message: Operacion Cancelada.\n");
         break;
 
       case 0:
-        printf("Response Message: \"Operación Existosa\" \n");
+        printf("Response Message: Operacion Exitosa.\n");
         break;
 
       case 5:
-        printf("Response Message: \"Venta no existe\" \n");
+        printf("Response Message: Venta no existe.\n");
         break;
 
       case 6:
-        printf("Response Message: \"Venta ya anulada\" \n");
+        printf("Response Message: Venta ya anulada.\n");
+        break;
+
+      case 9:
+        printf("Response Message: Error lectura de tarjeta.\n");
+        break;
+
+      case 20:
+        printf("Response Message: Tarjeta invalida.\n");
         break;
 
       case 21:
-        printf("Response Message: \"Anulación no permitida\" \n");
+        printf("Response Message: Anulacion no permitida.\n");
         break;
 
       default:
-        printf("Response Message: \"Error desconocido\" \n");
+        printf("Response Message: Error desconocido.\n");
         break;
       }
     }
