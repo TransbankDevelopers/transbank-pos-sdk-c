@@ -588,15 +588,8 @@ Message prepare_cancellation_message(int transactionID)
 
 CancellationResponse *parse_cancellation_response(char *buf)
 {
-
-  // printf("%s\n\n", buf);
-  // for (int x = 0; strlen(buf); x++)
-  // {
-  //   printf(" 0x%x , ", buf[x]);
-  // }
-
   CancellationResponse *response = malloc(sizeof(CancellationResponse));
-  response->operationID = -2;
+  response->initilized = TBK_NOK;
 
   char *word;
   int init_pos = 1, length = 0, found = 0;
