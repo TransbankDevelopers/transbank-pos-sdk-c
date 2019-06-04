@@ -25,4 +25,15 @@ typedef struct
   int initilized;
 } TotalsResponse;
 
+typedef struct
+{
+  int function;
+  int responseCode;
+  long long commerceCode;
+  int terminalId;
+  int authorizationCode;
+  int operationID;
+  int initilized;
+} CancellationResponse;
+
 #endif

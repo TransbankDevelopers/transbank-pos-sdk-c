@@ -586,10 +586,73 @@ Message prepare_cancellation_message(int transactionID)
   return message;
 }
 
-char *cancellation(int transactionID)
+CancellationResponse *parse_cancellation_response(char *buf)
+{
+  CancellationResponse *response = malloc(sizeof(CancellationResponse));
+  response->operationID = -2;
+
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtol(word, NULL, 10);
+        break;
+
+      case 4:
+        response->terminalId = strtol(word, NULL, 10);
+        break;
+
+      case 5:
+        response->authorizationCode = strtol(word, NULL, 10);
+        break;
+
+      case 6:
+        response->operationID = strtol(word, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
+  return response;
+}
+
+CancellationResponse cancellation(int transactionID)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
+
+  CancellationResponse *rsp = malloc(sizeof(CancellationResponse));
+  rsp->initilized = TBK_NOK;
 
   Message cancellation_message = prepare_cancellation_message(transactionID);
 
@@ -626,7 +689,8 @@ char *cancellation(int transactionID)
           retval = reply_ack(port, buf, cancellation_message.responseSize);
           if (retval == TBK_OK)
           {
-            return buf;
+            rsp = parse_cancellation_response(buf);
+            return *rsp;
           }
           else
           {
@@ -641,9 +705,6 @@ char *cancellation(int transactionID)
       wait = sp_input_waiting(port);
     } while (tries < cancellation_message.retries);
   }
-  else
-  {
-    return "Unable to request Cancellation\n";
-  }
-  return "Unable to request Cancellation\n";
+
+  return *rsp;
 }

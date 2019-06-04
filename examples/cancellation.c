@@ -13,8 +13,49 @@ int main()
     int op;
     scanf("%i", &op);
 
-    char *cancellationResponse = cancellation(op); // cancellation(transactionID)
-    printf("Cancellation response %s\n", cancellationResponse);
+    CancellationResponse response = cancellation(op); // cancellation(transactionID)
+    if (response.initilized == TBK_OK)
+    {
+      printf("CANCELLATION RESPONSE\n=============\n");
+
+      printf("Function : %i \n", response.function);
+      printf("Response Code : %i \n", response.responseCode);
+      printf("Commerce Code : %llu \n", response.commerceCode);
+      printf("Terminal ID : %i \n", response.terminalId);
+      printf("Authorization Code : %i \n", response.authorizationCode);
+      printf("Operation ID : %i \n\n", response.operationID);
+
+      switch (response.responseCode)
+      {
+      case -1:
+        printf("Response Message: \"Operación Cancelada\" \n");
+        break;
+
+      case 0:
+        printf("Response Message: \"Operación Existosa\" \n");
+        break;
+
+      case 5:
+        printf("Response Message: \"Venta no existe\" \n");
+        break;
+
+      case 6:
+        printf("Response Message: \"Venta ya anulada\" \n");
+        break;
+
+      case 21:
+        printf("Response Message: \"Anulación no permitida\" \n");
+        break;
+
+      default:
+        printf("Response Message: \"Error desconocido\" \n");
+        break;
+      }
+    }
+    else
+    {
+      printf("Could not perform cancellation process.\n");
+    }
   }
   else
   {
