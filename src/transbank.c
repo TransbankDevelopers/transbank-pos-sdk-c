@@ -588,6 +588,13 @@ Message prepare_cancellation_message(int transactionID)
 
 CancellationResponse *parse_cancellation_response(char *buf)
 {
+
+  // printf("%s\n\n", buf);
+  // for (int x = 0; strlen(buf); x++)
+  // {
+  //   printf(" 0x%x , ", buf[x]);
+  // }
+
   CancellationResponse *response = malloc(sizeof(CancellationResponse));
   response->operationID = -2;
 

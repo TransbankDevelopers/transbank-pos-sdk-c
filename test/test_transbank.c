@@ -82,6 +82,20 @@ int __wrap_read_bytes(struct sp_port *port, char *buf, Message message)
                        0x03, 0x33, '\0'};
     strcpy(buf, response);
   }
+  else if (strcmp(command, "1200") == 0)
+  {
+    char response[] = {
+        0x02,
+        0x31, 0x32, 0x31, 0x30, 0x7c,
+        0x30, 0x30, 0x7c,
+        0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x7c,
+        0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x39, 0x7c,
+        0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x7c,
+        0x31, 0x30,
+        0x03, 0x78, '\0'};
+
+    strcpy(buf, response);
+  }
 
   return mock();
 }
@@ -496,6 +510,23 @@ void test_get_totals_reply_ack_nok(void **state)
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
+// Cancellation
+void test_cancellation_ok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return(__wrap_sp_input_waiting, 32);
+  will_return(__wrap_read_bytes, 34);
+  will_return(__wrap_reply_ack, 0);
+
+  CancellationResponse response = cancellation(10);
+
+  assert_int_equal(1210, response.function);
+  assert_int_equal(0, response.responseCode);
+  assert_int_equal(10, response.operationID);
+}
+
 const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_poll_ok),
     cmocka_unit_test(test_poll_write_nok),
@@ -530,7 +561,8 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_get_totals_ok),
     cmocka_unit_test(test_get_totals_nok),
     cmocka_unit_test(test_get_totals_read_bytes_nok),
-    cmocka_unit_test(test_get_totals_reply_ack_nok)};
+    cmocka_unit_test(test_get_totals_reply_ack_nok),
+    cmocka_unit_test(test_cancellation_ok)};
 
 int main(void)
 {
