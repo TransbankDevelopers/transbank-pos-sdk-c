@@ -550,3 +550,161 @@ TotalsResponse get_totals()
 
   return *rsp;
 }
+
+Message prepare_cancellation_message(int transactionID)
+{
+  const int payloadSize = 15;
+  const int responseSize = 46;
+
+  char command[] = {STX, 0x31, 0x32, 0x30, 0x30, '\0'};
+  char pipe[] = {PIPE, '\0'};
+  char etx[] = {ETX, '\0'};
+  char lrc_string[] = {0x30, '\0'};
+
+  char transaction_string[7];
+  sprintf(transaction_string, "%06d", transactionID);
+
+  char *msg = malloc(sizeof(char) * payloadSize);
+  memset(msg, '\0', sizeof(&msg));
+
+  strcat(msg, command);
+  strcat(msg, pipe);
+  strcat(msg, transaction_string);
+  strcat(msg, pipe);
+  strcat(msg, etx);
+  strcat(msg, lrc_string);
+
+  unsigned char lrc = calculate_lrc(msg, payloadSize);
+  msg[strlen(msg) - 1] = lrc;
+
+  Message message = {
+      .payload = msg,
+      .payloadSize = payloadSize,
+      .responseSize = responseSize,
+      .retries = 3};
+
+  return message;
+}
+
+CancellationResponse *parse_cancellation_response(char *buf)
+{
+  CancellationResponse *response = malloc(sizeof(CancellationResponse));
+  response->initilized = TBK_NOK;
+
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtol(word, NULL, 10);
+        break;
+
+      case 4:
+        response->terminalId = strtol(word, NULL, 10);
+        break;
+
+      case 5:
+        response->authorizationCode = strtol(word, NULL, 10);
+        break;
+
+      case 6:
+        response->operationID = strtol(word, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
+  return response;
+}
+
+CancellationResponse cancellation(int transactionID)
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  CancellationResponse *rsp = malloc(sizeof(CancellationResponse));
+  rsp->initilized = TBK_NOK;
+
+  Message cancellation_message = prepare_cancellation_message(transactionID);
+
+  do
+  {
+    retval = write_message(port, cancellation_message);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < cancellation_message.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    tries = 0;
+    char *buf;
+    buf = malloc(cancellation_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, cancellation_message);
+        if (readedbytes > 0)
+        {
+          cancellation_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, cancellation_message.responseSize);
+          if (retval == TBK_OK)
+          {
+            rsp = parse_cancellation_response(buf);
+            return *rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < cancellation_message.retries);
+  }
+
+  return *rsp;
+}

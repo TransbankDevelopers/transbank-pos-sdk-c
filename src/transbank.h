@@ -25,5 +25,6 @@ extern TotalsResponse get_totals();
 extern enum TbkReturn poll();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();
+extern CancellationResponse cancellation(int transactionID);
 
 #endif
