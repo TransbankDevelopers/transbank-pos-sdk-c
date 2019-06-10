@@ -36,4 +36,18 @@ typedef struct
   int initilized;
 } CancellationResponse;
 
+typedef struct
+{
+  int function;
+  int responseCode;
+  long long commerceCode;
+  int terminalId;
+  int ticketID;
+  int authorizationCode;
+  int amount;
+  int lastDigits;
+  int operationID;
+  int initilized;
+} SalesDetailResponse;
+
 #endif

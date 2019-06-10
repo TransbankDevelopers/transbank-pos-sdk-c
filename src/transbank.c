@@ -15,6 +15,8 @@ static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
 static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
 static char LAST_SALE_MESSAGE[] = {STX, 0x30, 0x32, 0x35, 0x30, PIPE, ETX, 0x78};
+static char SALES_DETAIL_MESSAGE[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x31, PIPE, ETX, 0x36};
+// static char SALES_DETAIL_MESSAGE[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x30, PIPE, ETX, 0x37};
 
 static Message CLOSE = {
     .payload = CLOSE_MESSAGE,
@@ -46,6 +48,12 @@ static Message CHANGE_TO_NORMAL = {
     .payloadSize = 7,
     .responseSize = 1,
     .retries = 3};
+
+static Message SALES_DETAIL = {
+    .payload = SALES_DETAIL_MESSAGE,
+    .payloadSize = 10,
+    .responseSize = 200,
+    .retries = 6};
 
 int configure_port(int baud_rate)
 {
@@ -704,6 +712,159 @@ CancellationResponse cancellation(int transactionID)
       }
       wait = sp_input_waiting(port);
     } while (tries < cancellation_message.retries);
+  }
+
+  return *rsp;
+}
+
+SalesDetailResponse *parse_sales_detail_response(char *buf)
+{
+  SalesDetailResponse *response = malloc(sizeof(SalesDetailResponse));
+  response->initilized = TBK_NOK;
+
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtol(word, NULL, 10);
+        break;
+
+      case 4:
+        response->ticketID = strtol(word, NULL, 10);
+        break;
+
+      case 5:
+        response->terminalId = strtol(word, NULL, 10);
+        break;
+
+      case 6:
+        response->authorizationCode = strtol(word, NULL, 10);
+        break;
+
+      case 7:
+        response->amount = strtol(word, NULL, 10);
+        break;
+
+      case 8:
+        response->lastDigits = strtol(word, NULL, 10);
+        break;
+
+      case 9:
+        response->operationID = strtol(word, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
+  return response;
+}
+
+SalesDetailResponse sales_detail()
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  SalesDetailResponse *rsp = malloc(sizeof(SalesDetailResponse));
+  rsp->initilized = TBK_NOK;
+
+  do
+  {
+    printf("REQUEST : %s\n", SALES_DETAIL.payload);
+
+    retval = write_message(port, SALES_DETAIL);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      printf("RETVAL : %d\n", retval);
+
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < SALES_DETAIL.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
+    tries = 0;
+    buf = malloc(SALES_DETAIL.responseSize * sizeof(char));
+
+    int wait;
+    do
+    {
+      wait = sp_input_waiting(port);
+      if (wait > 0)
+      {
+        printf("WAIT : %d\n", wait);
+      }
+
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, SALES_DETAIL);
+        printf("READED BYTES : %d\n", readedbytes);
+
+        if (readedbytes > 0)
+        {
+          retval = reply_ack(port, buf, readedbytes);
+          printf("RETVAL 2 : %d\n", retval);
+
+          if (retval == TBK_OK)
+          {
+            printf("BUFF : %s\n", buf);
+            rsp = parse_sales_detail_response(buf);
+
+            if (rsp->operationID != 0)
+            {
+              tries = 0;
+              continue;
+            }
+
+            return *rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+    } while (tries < SALES_DETAIL.retries);
   }
 
   return *rsp;
