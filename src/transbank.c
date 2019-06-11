@@ -16,7 +16,7 @@ static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
 static char LAST_SALE_MESSAGE[] = {STX, 0x30, 0x32, 0x35, 0x30, PIPE, ETX, 0x78};
 static char SALES_DETAIL_MESSAGE[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x31, PIPE, ETX, 0x36};
-// static char SALES_DETAIL_MESSAGE[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x30, PIPE, ETX, 0x37};
+static char SALES_DETAIL_MESSAGE_PRINT[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x30, PIPE, ETX, 0x37};
 
 static Message CLOSE = {
     .payload = CLOSE_MESSAGE,
@@ -52,8 +52,8 @@ static Message CHANGE_TO_NORMAL = {
 static Message SALES_DETAIL = {
     .payload = SALES_DETAIL_MESSAGE,
     .payloadSize = 10,
-    .responseSize = 200,
-    .retries = 6};
+    .responseSize = 196,
+    .retries = 3};
 
 int configure_port(int baud_rate)
 {
@@ -721,11 +721,17 @@ SalesDetailResponse *parse_sales_detail_response(char *buf)
 {
   SalesDetailResponse *response = malloc(sizeof(SalesDetailResponse));
   response->initilized = TBK_NOK;
+  strcpy(response->authorizationCode, "-1");
 
   char *word;
   int init_pos = 1, length = 0, found = 0;
   for (int x = init_pos; x < strlen(buf); x++)
   {
+    if (buf[x] == '-' && found == 0)
+    {
+      break;
+    }
+
     if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
     {
       word = malloc((length + 1) * sizeof(char *));
@@ -752,15 +758,15 @@ SalesDetailResponse *parse_sales_detail_response(char *buf)
         break;
 
       case 4:
-        response->ticketID = strtol(word, NULL, 10);
+        strcpy(response->terminalId, word);
         break;
 
       case 5:
-        response->terminalId = strtol(word, NULL, 10);
+        strcpy(response->ticketID, word);
         break;
 
       case 6:
-        response->authorizationCode = strtol(word, NULL, 10);
+        strcpy(response->authorizationCode, word);
         break;
 
       case 7:
@@ -773,6 +779,46 @@ SalesDetailResponse *parse_sales_detail_response(char *buf)
 
       case 9:
         response->operationID = strtol(word, NULL, 10);
+        break;
+
+      case 10:
+        strcpy(response->cardType, word);
+        break;
+
+      case 11:
+        strcpy(response->accountingDate, word);
+        break;
+
+      case 12:
+        strcpy(response->numberAccount, word);
+        break;
+
+      case 13:
+        strcpy(response->cardAbbr, word);
+        break;
+
+      case 14:
+        strcpy(response->transactionDate, word);
+        break;
+
+      case 15:
+        strcpy(response->transactionTime, word);
+        break;
+
+      case 16:
+        response->employeID = strtol(word, NULL, 10);
+        break;
+
+      case 17:
+        response->tip = strtol(word, NULL, 10);
+        break;
+
+      case 18:
+        response->feeAmount = strtol(word, NULL, 10);
+        break;
+
+      case 19:
+        response->feeNumber = strtol(word, NULL, 10);
         break;
 
       default:
@@ -799,14 +845,10 @@ SalesDetailResponse sales_detail()
 
   do
   {
-    printf("REQUEST : %s\n", SALES_DETAIL.payload);
-
     retval = write_message(port, SALES_DETAIL);
     if (retval == TBK_OK)
     {
       retval = read_ack(port);
-      printf("RETVAL : %d\n", retval);
-
       if (retval == TBK_OK)
       {
         write_ok = TBK_OK;
@@ -828,25 +870,14 @@ SalesDetailResponse sales_detail()
       wait = sp_input_waiting(port);
       if (wait > 0)
       {
-        printf("WAIT : %d\n", wait);
-      }
-
-      if (wait > 0)
-      {
         int readedbytes = read_bytes(port, buf, SALES_DETAIL);
-        printf("READED BYTES : %d\n", readedbytes);
-
         if (readedbytes > 0)
         {
           retval = reply_ack(port, buf, readedbytes);
-          printf("RETVAL 2 : %d\n", retval);
-
           if (retval == TBK_OK)
           {
-            printf("BUFF : %s\n", buf);
             rsp = parse_sales_detail_response(buf);
-
-            if (rsp->operationID != 0)
+            if (strcmp(rsp->authorizationCode, " ") != 0)
             {
               tries = 0;
               continue;
