@@ -25,7 +25,7 @@ int main()
       }
       else
       {
-        puts("Error: Keys loaded failed.\n=================\n");
+        puts("Error: Loadkeys has failed.\n=================\n");
       }
     }
     else
