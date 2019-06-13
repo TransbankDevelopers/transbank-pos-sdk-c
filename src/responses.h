@@ -34,6 +34,6 @@ typedef struct
   int authorizationCode;
   int operationID;
   int initilized;
-} CancellationResponse;
+} RefundResponse;
 
 #endif

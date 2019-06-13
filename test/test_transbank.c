@@ -510,8 +510,8 @@ void test_get_totals_reply_ack_nok(void **state)
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
-// Cancellation
-void test_cancellation_ok(void **state)
+// Refund
+void test_refund_ok(void **state)
 {
   (void)state;
   will_return(__wrap_write_message, TBK_OK);
@@ -520,23 +520,23 @@ void test_cancellation_ok(void **state)
   will_return(__wrap_read_bytes, 34);
   will_return(__wrap_reply_ack, 0);
 
-  CancellationResponse response = cancellation(10);
+  RefundResponse response = refund(10);
 
   assert_int_equal(1210, response.function);
   assert_int_equal(0, response.responseCode);
   assert_int_equal(10, response.operationID);
 }
 
-void test_cancellation_nok(void **state)
+void test_refund_nok(void **state)
 {
   (void)state;
   will_return_count(__wrap_write_message, TBK_NOK, 3);
 
-  CancellationResponse response = cancellation(9);
+  RefundResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
-void test_cancellation_read_bytes_nok(void **state)
+void test_refund_read_bytes_nok(void **state)
 {
   (void)state;
   will_return(__wrap_write_message, TBK_OK);
@@ -544,11 +544,11 @@ void test_cancellation_read_bytes_nok(void **state)
   will_return_count(__wrap_read_bytes, -1, 3);
   will_return_count(__wrap_sp_input_waiting, 34, 4);
 
-  CancellationResponse response = cancellation(9);
+  RefundResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
-void test_cancellation_reply_ack_nok(void **state)
+void test_refund_reply_ack_nok(void **state)
 {
   (void)state;
   will_return(__wrap_write_message, TBK_OK);
@@ -557,7 +557,7 @@ void test_cancellation_reply_ack_nok(void **state)
   will_return_count(__wrap_sp_input_waiting, 34, 4);
   will_return_count(__wrap_reply_ack, -1, 3);
 
-  CancellationResponse response = cancellation(9);
+  RefundResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -596,9 +596,9 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_get_totals_nok),
     cmocka_unit_test(test_get_totals_read_bytes_nok),
     cmocka_unit_test(test_get_totals_reply_ack_nok),
-    cmocka_unit_test(test_cancellation_ok),
-    cmocka_unit_test(test_cancellation_nok),
-    cmocka_unit_test(test_cancellation_read_bytes_nok)};
+    cmocka_unit_test(test_refund_ok),
+    cmocka_unit_test(test_refund_nok),
+    cmocka_unit_test(test_refund_read_bytes_nok)};
 
 int main(void)
 {

@@ -551,7 +551,7 @@ TotalsResponse get_totals()
   return *rsp;
 }
 
-Message prepare_cancellation_message(int transactionID)
+Message prepare_refund_message(int transactionID)
 {
   const int payloadSize = 15;
   const int responseSize = 46;
@@ -586,9 +586,9 @@ Message prepare_cancellation_message(int transactionID)
   return message;
 }
 
-CancellationResponse *parse_cancellation_response(char *buf)
+RefundResponse *parse_refund_response(char *buf)
 {
-  CancellationResponse *response = malloc(sizeof(CancellationResponse));
+  RefundResponse *response = malloc(sizeof(RefundResponse));
   response->initilized = TBK_NOK;
 
   char *word;
@@ -646,19 +646,19 @@ CancellationResponse *parse_cancellation_response(char *buf)
   return response;
 }
 
-CancellationResponse cancellation(int transactionID)
+RefundResponse refund(int transactionID)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
 
-  CancellationResponse *rsp = malloc(sizeof(CancellationResponse));
+  RefundResponse *rsp = malloc(sizeof(RefundResponse));
   rsp->initilized = TBK_NOK;
 
-  Message cancellation_message = prepare_cancellation_message(transactionID);
+  Message refund_message = prepare_refund_message(transactionID);
 
   do
   {
-    retval = write_message(port, cancellation_message);
+    retval = write_message(port, refund_message);
     if (retval == TBK_OK)
     {
       retval = read_ack(port);
@@ -669,27 +669,27 @@ CancellationResponse cancellation(int transactionID)
       }
     }
     tries++;
-  } while (tries < cancellation_message.retries);
+  } while (tries < refund_message.retries);
 
   if (write_ok == TBK_OK)
   {
     tries = 0;
     char *buf;
-    buf = malloc(cancellation_message.responseSize * sizeof(char));
+    buf = malloc(refund_message.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do
     {
       if (wait > 0)
       {
-        int readedbytes = read_bytes(port, buf, cancellation_message);
+        int readedbytes = read_bytes(port, buf, refund_message);
         if (readedbytes > 0)
         {
-          cancellation_message.responseSize = readedbytes;
-          retval = reply_ack(port, buf, cancellation_message.responseSize);
+          refund_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, refund_message.responseSize);
           if (retval == TBK_OK)
           {
-            rsp = parse_cancellation_response(buf);
+            rsp = parse_refund_response(buf);
             return *rsp;
           }
           else
@@ -703,7 +703,7 @@ CancellationResponse cancellation(int transactionID)
         }
       }
       wait = sp_input_waiting(port);
-    } while (tries < cancellation_message.retries);
+    } while (tries < refund_message.retries);
   }
 
   return *rsp;

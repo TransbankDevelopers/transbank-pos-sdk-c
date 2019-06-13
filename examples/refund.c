@@ -8,15 +8,15 @@ int main()
   int retval = open_port(portName, bRate);
   if (retval == TBK_OK)
   {
-    printf("Cancellation request...\n");
+    printf("Refund request...\n");
     printf("Please insert Operation Number:");
     int op;
     scanf("%i", &op);
 
-    CancellationResponse response = cancellation(op); // cancellation(transactionID)
+    RefundResponse response = refund(op); // refund(transactionID)
     if (response.initilized == TBK_OK)
     {
-      printf("CANCELLATION RESPONSE\n=============\n");
+      printf("REFUND RESPONSE\n=============\n");
 
       printf("Function : %i \n", response.function);
       printf("Response Code : %i \n", response.responseCode);
@@ -62,7 +62,7 @@ int main()
     }
     else
     {
-      printf("Could not perform cancellation process.\n");
+      printf("Could not perform refund process.\n");
     }
   }
   else
