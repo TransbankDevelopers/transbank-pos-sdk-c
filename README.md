@@ -2,7 +2,7 @@
 
 ## Desarrollo
 
-Descarga e instala la dependencia **libserialport** ([instrucciones](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
+Descarga e instala la dependencia **libserialport** ([instrucciones](https://sigrok.org/wiki/Libserialport)) `git clone git://sigrok.org/libserialport`
 
 ### Controladores (Dependiendo del adaptador/puerto serial que tengas)
 
@@ -27,11 +27,11 @@ Descarga e instala la dependencia **libserialport** ([instrucciones](https://sig
 
 Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 
-- ```brew install automake```
-- ```brew install autoconf```
-- ```brew install libtool```
-- ```brew install swig```
-- ```brew install cmocka```
+- `brew install automake`
+- `brew install autoconf`
+- `brew install libtool`
+- `brew install swig`
+- `brew install cmocka`
 
 ### Unix
 
@@ -43,6 +43,8 @@ Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 - cmocka
 
 ### Construir el Proyecto
+
+#### Build
 
 ```bash
 make build example=main
