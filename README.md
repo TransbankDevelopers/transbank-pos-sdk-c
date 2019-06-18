@@ -1,31 +1,31 @@
-# Transbank POS - SDK in Clang
+# Transbank POS - SDK en C
 
-## Dev
+## Desarrollo
 
-Download and install **libserialport** dependency ([instructions](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
+Descarga e instala la dependencia **libserialport** ([instrucciones](https://sigrok.org/wiki/Libserialport)) ```git clone git://sigrok.org/libserialport```
 
-### Drivers (This depends on the serial adapter you have)
+### Controladores (Dependiendo del adaptador/puerto serial que tengas)
 
-- Driver USB Serial **Chipset CH340** for Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
-- Driver USB Serial **Chipset CH340** for macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
-- Driver USB Serial **Chipset Prolific** for macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
+- USB Serial **Chipset CH340** para Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
+- USB Serial **Chipset CH340** para macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
+- USB Serial **Chipset Prolific** para macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 
 ### Windows 10
 
-- Visual Studio 2017 + c++ utilities.
+- Visual Studio 2017.
 
-- [msys2 - mingw-w64](http://www.msys2.org/) follow the instructions in the web site.
-  - Install mingw tolchain
+- [msys2 - mingw-w64](http://www.msys2.org/) sigue las instrucciones en la web:
+  - Instala mingw
     - 32bits: ```pacman -S mingw-w64-i686-toolchain```
     - 64bits: ```pacman -S mingw-w64-x86_64-toolchain```
   - Install mingw cmocka
     - 32bits: ```pacman -S mingw32/mingw-w64-i686-cmocka```
     - 64bits: ```pacman -S mingw64/mingw-w64-x86_64-cmocka```
-- Swig (you can use [Chocolatey](https://chocolatey.org/))
+- Swig (puedes usar [Chocolatey](https://chocolatey.org/))
 
 ### macOS
 
-This instructions asume you have [homebrew](https://brew.sh/) installed.
+Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 
 - ```brew install automake```
 - ```brew install autoconf```
@@ -42,15 +42,13 @@ This instructions asume you have [homebrew](https://brew.sh/) installed.
 - swig
 - cmocka
 
-## Run / Examples & Installation
-
-### Build
+### Construir el Proyecto
 
 ```bash
 make build example=main
 ```
 
-### Run
+### Ejecutar ejemplos
 
 ```bash
 make run example=main
@@ -62,17 +60,31 @@ make run example=main
 make debug example=main
 ```
 
-### Installation
+### Instalación
 
 ```bash
-cp build/transbank.dylib /usr/local/lib
+cp build/transbank.dll /ruta/en/tu/path
 ```
 
 ### Test
 
-The project now uses [cmocka](https://cmocka.org) to run unit test.
-Once you have **cmocka** installed on yor machine, you can simply do:
+Estamos usando [cmocka](https://cmocka.org) para ejecutar los test unitarios.
+Una vez tengas **cmocka** instalado en tu maquina, debes ejecutar:
 
 ```bash
 make cmocka-test
 ```
+
+### Generar una nueva versión
+
+Para generar una nueva versión se debe crear un nuevo pull request que contenga:
+
+1. Incrementar el número de versión en el archivo `version.rc` siguiendo la guía de SemVer.
+2. Actualizar `Changelog.md` con los nuevos cambios/modificaciones incluidas en esta nueva versión.
+3. Generar la DLL y el Wrapper (`make windows-wrapper`).
+
+Luego de mezclar el Pull Request:
+
+1. Crear inmediatamente un release en GitHub.
+2. Incluir en el Release de GitHub la DLL creada.
+3. Incluir también `libserialport-0.dll`.

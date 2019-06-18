@@ -11,7 +11,6 @@ y este proyecto adhiere a [Semantic Versioning](http://semver.org/spec/v2.0.0.ht
 
 - Función para Anulación.
 - Función para Última Venta.
-- Función para Detalle de Ventas.
 - Función para Totales.
 
 ## [1.0.0] - 2019-05-13
