@@ -21,8 +21,8 @@ int main()
       printf("Function : %i \n", response.function);
       printf("Response Code : %i \n", response.responseCode);
       printf("Commerce Code : %llu \n", response.commerceCode);
-      printf("Terminal ID : %i \n", response.terminalId);
-      printf("Authorization Code : %i \n", response.authorizationCode);
+      printf("Terminal ID : %s \n", response.terminalId);
+      printf("Authorization Code : %s \n", response.authorizationCode);
       printf("Operation ID : %i \n\n", response.operationID);
 
       switch (response.responseCode)
