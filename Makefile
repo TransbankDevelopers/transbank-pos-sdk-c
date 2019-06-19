@@ -20,8 +20,9 @@ wraper:
 
 windows-wrapper:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
+	windres.exe version.rc -o build/version.o
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
-	cc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dll -lserialport
+	cc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o build/version.o -o build/TransbankWrap.dll -lserialport -Wl,--subsystem,windows
 	cp build/TransbankWrap.dll /c/msys64/mingw64/bin
 
 cmocka-test:
