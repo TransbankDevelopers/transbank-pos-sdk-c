@@ -210,7 +210,7 @@ void test_load_keys_ok(void **state)
   assert_int_equal(810, response.function);
   assert_int_equal(0, response.responseCode);
   assert_int_equal(597029414300, response.commerceCode);
-  assert_int_equal(75001087, response.terminalId);
+  assert_string_equal('75001087', response.terminalId);
   assert_int_equal(TBK_OK, response.initilized);
 }
 
@@ -272,7 +272,7 @@ void test_close_ok(void **state)
   assert_int_equal(510, response.function);
   assert_int_equal(0, response.responseCode);
   assert_int_equal(597029414300, response.commerceCode);
-  assert_int_equal(75001087, response.terminalId);
+  assert_string_equal('75001087', response.terminalId);
   assert_int_equal(TBK_OK, response.initilized);
 }
 
