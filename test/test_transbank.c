@@ -50,6 +50,52 @@ int __wrap_read_bytes(struct sp_port *port, char *buf, Message message)
                        0x03, 0x30, '\0'};
     strcpy(buf, response);
   }
+  else if (strcmp(command, "0250") == 0) // Last Sale
+  {
+    // 0260|00|597029414300|75001089|000002|181278|2500|3|834|6590|000063|CR|||VI|14052019|111555|0|0|x
+    char response[] = {0x02,
+                       0x30, 0x32, 0x36, 0x30, 0x7C,
+                       0x30, 0x30, 0x7C,
+                       0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x7C,
+                       0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x39, 0x7C,
+                       0x30, 0x30, 0x30, 0x30, 0x30, 0x32, 0x7C,
+                       0x31, 0x38, 0x31, 0x32, 0x37, 0x38, 0x7C,
+                       0x32, 0x35, 0x30, 0x30, 0x7C, 0x33, 0x7C,
+                       0x38, 0x33, 0x34, 0x7C,
+                       0x36, 0x35, 0x39, 0x30, 0x7C,
+                       0x30, 0x30, 0x30, 0x30, 0x36, 0x33, 0x7C,
+                       0x43, 0x52, 0x7C, 0x7C, 0x7C,
+                       0x56, 0x49, 0x7C,
+                       0x31, 0x34, 0x30, 0x35, 0x32, 0x30, 0x31, 0x39, 0x7C,
+                       0x31, 0x31, 0x31, 0x35, 0x35, 0x35, 0x7C,
+                       0x30, 0x7C,
+                       0x30, 0x7C,
+                       0x03, 0x78, '\0'};
+    strcpy(buf, response);
+  }
+  else if (strcmp(command, "0700") == 0) // Get Totals
+  {
+    char response[] = {0x02,
+                       0x30, 0x37, 0x31, 0x30, 0x7C,
+                       0x30, 0x30, 0x7C, 0x31, 0x7C,
+                       0x32, 0x35, 0x30, 0x30, 0x7C,
+                       0x03, 0x33, '\0'};
+    strcpy(buf, response);
+  }
+  else if (strcmp(command, "1200") == 0)
+  {
+    char response[] = {
+        0x02,
+        0x31, 0x32, 0x31, 0x30, 0x7c,
+        0x30, 0x30, 0x7c,
+        0x35, 0x39, 0x37, 0x30, 0x32, 0x39, 0x34, 0x31, 0x34, 0x33, 0x30, 0x30, 0x7c,
+        0x37, 0x35, 0x30, 0x30, 0x31, 0x30, 0x38, 0x39, 0x7c,
+        0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x7c,
+        0x31, 0x30,
+        0x03, 0x78, '\0'};
+
+    strcpy(buf, response);
+  }
 
   return mock();
 }
@@ -345,6 +391,176 @@ void test_sale_reply_ack_nok(void **state)
   assert_int_equal(0, strcmp("Unable to request sale\n", response));
 }
 
+// Last sale
+void test_last_sale_ok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return(__wrap_sp_input_waiting, 98);
+  will_return(__wrap_read_bytes, 98);
+  will_return(__wrap_reply_ack, 0);
+
+  char *response = last_sale();
+
+  char command[5];
+  memset(command, '\0', sizeof(command));
+  strncpy(command, response + 1, 4);
+  assert_int_equal(0, strcmp(command, "0260"));
+
+  char code[3];
+  memset(code, '\0', sizeof(code));
+  strncpy(code, response + 6, 2);
+  assert_int_equal(0, strcmp(code, "00"));
+}
+
+void test_last_sale_nok(void **state)
+{
+  (void)state;
+  will_return_count(__wrap_write_message, TBK_NOK, 3);
+
+  char *response = last_sale();
+  assert_int_equal(0, strcmp("Unable to request last sale\n", response));
+}
+
+void test_last_sale_ack_nok(void **state)
+{
+  (void)state;
+  will_return_count(__wrap_write_message, TBK_OK, 3);
+  will_return_count(__wrap_read_ack, TBK_NOK, 3);
+
+  char *response = last_sale();
+  assert_int_equal(0, strcmp("Unable to request last sale\n", response));
+}
+
+void test_last_sale_read_bytes_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, -1, 3);
+  will_return_count(__wrap_sp_input_waiting, 98, 4);
+
+  char *response = last_sale();
+  assert_int_equal(0, strcmp("Unable to request last sale\n", response));
+}
+
+void test_last_sale_reply_ack_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, 98, 3);
+  will_return_count(__wrap_sp_input_waiting, 98, 4);
+  will_return_count(__wrap_reply_ack, -1, 3);
+
+  char *response = last_sale();
+  assert_int_equal(0, strcmp("Unable to request last sale\n", response));
+}
+
+// Get Totals
+void test_get_totals_ok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return(__wrap_sp_input_waiting, 32);
+  will_return(__wrap_read_bytes, 19);
+  will_return(__wrap_reply_ack, 0);
+
+  TotalsResponse response = get_totals();
+
+  assert_int_equal(710, response.function);
+  assert_int_equal(0, response.responseCode);
+  assert_int_equal(1, response.txCount);
+  assert_int_equal(2500, response.txTotal);
+}
+
+void test_get_totals_nok(void **state)
+{
+  (void)state;
+  will_return_count(__wrap_write_message, TBK_NOK, 3);
+
+  TotalsResponse response = get_totals();
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_get_totals_read_bytes_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, -1, 3);
+  will_return_count(__wrap_sp_input_waiting, 32, 4);
+
+  TotalsResponse response = get_totals();
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_get_totals_reply_ack_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, 19, 3);
+  will_return_count(__wrap_sp_input_waiting, 32, 4);
+  will_return_count(__wrap_reply_ack, -1, 3);
+
+  TotalsResponse response = get_totals();
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+// Refund
+void test_refund_ok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return(__wrap_sp_input_waiting, 32);
+  will_return(__wrap_read_bytes, 34);
+  will_return(__wrap_reply_ack, 0);
+
+  RefundResponse response = refund(10);
+
+  assert_int_equal(1210, response.function);
+  assert_int_equal(0, response.responseCode);
+  assert_int_equal(10, response.operationID);
+}
+
+void test_refund_nok(void **state)
+{
+  (void)state;
+  will_return_count(__wrap_write_message, TBK_NOK, 3);
+
+  RefundResponse response = refund(9);
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_refund_read_bytes_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, -1, 3);
+  will_return_count(__wrap_sp_input_waiting, 34, 4);
+
+  RefundResponse response = refund(9);
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
+void test_refund_reply_ack_nok(void **state)
+{
+  (void)state;
+  will_return(__wrap_write_message, TBK_OK);
+  will_return(__wrap_read_ack, TBK_OK);
+  will_return_count(__wrap_read_bytes, 15, 3);
+  will_return_count(__wrap_sp_input_waiting, 34, 4);
+  will_return_count(__wrap_reply_ack, -1, 3);
+
+  RefundResponse response = refund(9);
+  assert_int_equal(TBK_NOK, response.initilized);
+}
+
 const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_poll_ok),
     cmocka_unit_test(test_poll_write_nok),
@@ -370,7 +586,19 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_sale_nok),
     cmocka_unit_test(test_sale_ack_nok),
     cmocka_unit_test(test_sale_read_bytes_nok),
-    cmocka_unit_test(test_sale_reply_ack_nok)};
+    cmocka_unit_test(test_sale_reply_ack_nok),
+    cmocka_unit_test(test_last_sale_ok),
+    cmocka_unit_test(test_last_sale_nok),
+    cmocka_unit_test(test_last_sale_ack_nok),
+    cmocka_unit_test(test_last_sale_read_bytes_nok),
+    cmocka_unit_test(test_last_sale_reply_ack_nok),
+    cmocka_unit_test(test_get_totals_ok),
+    cmocka_unit_test(test_get_totals_nok),
+    cmocka_unit_test(test_get_totals_read_bytes_nok),
+    cmocka_unit_test(test_get_totals_reply_ack_nok),
+    cmocka_unit_test(test_refund_ok),
+    cmocka_unit_test(test_refund_nok),
+    cmocka_unit_test(test_refund_read_bytes_nok)};
 
 int main(void)
 {

@@ -14,6 +14,7 @@ static char GET_TOTALS_MESSAGE[] = {STX, 0x30, 0x37, 0x30, 0x30, PIPE, PIPE, ETX
 static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
 static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
+static char LAST_SALE_MESSAGE[] = {STX, 0x30, 0x32, 0x35, 0x30, PIPE, ETX, 0x78};
 
 static Message CLOSE = {
     .payload = CLOSE_MESSAGE,
@@ -25,8 +26,8 @@ static Message CLOSE = {
 static Message GET_TOTALS = {
     .payload = GET_TOTALS_MESSAGE,
     .payloadSize = 9,
-    .responseSize = 21,
-    .retries = 1};
+    .responseSize = 24,
+    .retries = 3};
 
 static Message LOAD_KEYS = {
     .payload = LOAD_KEYS_MESSAGE,
@@ -107,6 +108,57 @@ BaseResponse *parse_load_keys_close_response(char *buf)
   return response;
 }
 
+TotalsResponse *parse_get_totals_response(char *buf)
+{
+  TotalsResponse *response = malloc(sizeof(TotalsResponse));
+
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|')
+    {
+      word = malloc(length * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->txCount = strtol(word, NULL, 10);
+        break;
+
+      case 4:
+        response->txTotal = strtol(word, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
+  return response;
+}
+
 Message prepare_sale_message(long amount, int ticket, bool send_messages)
 {
   char operation[] = {STX, 0x30, 0x32, 0x30, 0x30, '\0'};
@@ -138,7 +190,6 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
   strcat(msg, lrc_string);
 
   unsigned char lrc = calculate_lrc(msg, 28);
-
   msg[strlen(msg) - 1] = lrc;
 
   Message message = {
@@ -212,11 +263,79 @@ char *sale(int amount, int ticket, bool send_messages)
   return "Unable to request sale\n";
 }
 
+char *last_sale()
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  Message last_sale_message = {
+      .payload = LAST_SALE_MESSAGE,
+      .payloadSize = sizeof(LAST_SALE_MESSAGE),
+      .responseSize = 146,
+      .retries = 3};
+
+  do
+  {
+    retval = write_message(port, last_sale_message);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < last_sale_message.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    tries = 0;
+    char *buf;
+    buf = malloc(last_sale_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, last_sale_message);
+
+        if (readedbytes > 0)
+        {
+          last_sale_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, last_sale_message.responseSize);
+
+          if (retval == TBK_OK)
+          {
+            return buf;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < last_sale_message.retries);
+  }
+  else
+  {
+    return "Unable to request last sale\n";
+  }
+  return "Unable to request last sale\n";
+}
+
 BaseResponse close()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-  BaseResponse *rsp;
+  BaseResponse *rsp = malloc(sizeof(BaseResponse));
 
   do
   {
@@ -370,4 +489,222 @@ enum TbkReturn close_port()
     return TBK_OK;
   }
   return retval;
+}
+
+TotalsResponse get_totals()
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  TotalsResponse *rsp = malloc(sizeof(TotalsResponse));
+  rsp->initilized = TBK_NOK;
+
+  do
+  {
+    retval = write_message(port, GET_TOTALS);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < GET_TOTALS.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
+    tries = 0;
+    buf = malloc(GET_TOTALS.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      if (wait > 10)
+      {
+        int readedbytes = read_bytes(port, buf, GET_TOTALS);
+        if (readedbytes > 0)
+        {
+          retval = reply_ack(port, buf, readedbytes);
+          if (retval == TBK_OK)
+          {
+            rsp = parse_get_totals_response(buf);
+            return *rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < GET_TOTALS.retries);
+  }
+
+  return *rsp;
+}
+
+Message prepare_refund_message(int transactionID)
+{
+  const int payloadSize = 15;
+  const int responseSize = 46;
+
+  char command[] = {STX, 0x31, 0x32, 0x30, 0x30, '\0'};
+  char pipe[] = {PIPE, '\0'};
+  char etx[] = {ETX, '\0'};
+  char lrc_string[] = {0x30, '\0'};
+
+  char transaction_string[7];
+  sprintf(transaction_string, "%06d", transactionID);
+
+  char *msg = malloc(sizeof(char) * payloadSize);
+  memset(msg, '\0', sizeof(&msg));
+
+  strcat(msg, command);
+  strcat(msg, pipe);
+  strcat(msg, transaction_string);
+  strcat(msg, pipe);
+  strcat(msg, etx);
+  strcat(msg, lrc_string);
+
+  unsigned char lrc = calculate_lrc(msg, payloadSize);
+  msg[strlen(msg) - 1] = lrc;
+
+  Message message = {
+      .payload = msg,
+      .payloadSize = payloadSize,
+      .responseSize = responseSize,
+      .retries = 3};
+
+  return message;
+}
+
+RefundResponse *parse_refund_response(char *buf)
+{
+  RefundResponse *response = malloc(sizeof(RefundResponse));
+  response->initilized = TBK_NOK;
+
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtol(word, NULL, 10);
+        break;
+
+      case 4:
+        response->terminalId = strtol(word, NULL, 10);
+        break;
+
+      case 5:
+        response->authorizationCode = strtol(word, NULL, 10);
+        break;
+
+      case 6:
+        response->operationID = strtol(word, NULL, 10);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
+  return response;
+}
+
+RefundResponse refund(int transactionID)
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+
+  RefundResponse *rsp = malloc(sizeof(RefundResponse));
+  rsp->initilized = TBK_NOK;
+
+  Message refund_message = prepare_refund_message(transactionID);
+
+  do
+  {
+    retval = write_message(port, refund_message);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < refund_message.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    tries = 0;
+    char *buf;
+    buf = malloc(refund_message.responseSize * sizeof(char));
+
+    int wait = sp_input_waiting(port);
+    do
+    {
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, refund_message);
+        if (readedbytes > 0)
+        {
+          refund_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, refund_message.responseSize);
+          if (retval == TBK_OK)
+          {
+            rsp = parse_refund_response(buf);
+            return *rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+      wait = sp_input_waiting(port);
+    } while (tries < refund_message.retries);
+  }
+
+  return *rsp;
 }
