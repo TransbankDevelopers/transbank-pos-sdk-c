@@ -18,11 +18,11 @@ _Tip para los colaboradores:_ si están usando el editor Visual Studio Code usar
 
 - [msys2 - mingw-w64](http://www.msys2.org/) sigue las instrucciones en la web:
   - Instala mingw
-    - 32bits: `pacman -S mingw-w64-i686-toolchain`
-    - 64bits: `pacman -S mingw-w64-x86_64-toolchain`
+    - 32bits: ```pacman -S mingw-w64-i686-toolchain```
+    - 64bits: ```pacman -S mingw-w64-x86_64-toolchain```
   - Install mingw cmocka
-    - 32bits: `pacman -S mingw32/mingw-w64-i686-cmocka`
-    - 64bits: `pacman -S mingw64/mingw-w64-x86_64-cmocka`
+    - 32bits: ```pacman -S mingw32/mingw-w64-i686-cmocka```
+    - 64bits: ```pacman -S mingw64/mingw-w64-x86_64-cmocka```
 - Swig (puedes usar [Chocolatey](https://chocolatey.org/))
 
 ### macOS
