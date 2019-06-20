@@ -4,45 +4,45 @@
 
 Descarga e instala la dependencia **libserialport** ([instrucciones](https://sigrok.org/wiki/Libserialport)) `git clone git://sigrok.org/libserialport`
 
-_Tip para los colaboradores:_ si están usando el editor Visual Studio Code usar la extensión [C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) **Con el formateo automático por defecto.**
+_Tip para los colaboradores:_ si están usando el editor Visual Studio Code usar la extensión [C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) **Con el formateo automático por defecto**
 
 ### Controladores (Dependiendo del adaptador/puerto serial que tengas)
 
--   USB Serial **Chipset CH340** para Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
--   USB Serial **Chipset CH340** para macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
--   USB Serial **Chipset Prolific** para macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
+- USB Serial **Chipset CH340** para Windows: <http://www.wch.cn/download/CH341SER_EXE.html>
+- USB Serial **Chipset CH340** para macOS: <https://blog.sengotta.net/signed-mac-os-driver-for-winchiphead-ch340-serial-bridge/>
+- USB Serial **Chipset Prolific** para macOS: <http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&pcid=41>
 
 ### Windows 10
 
--   Visual Studio 2017.
+- Visual Studio 2017.
 
--   [msys2 - mingw-w64](http://www.msys2.org/) sigue las instrucciones en la web:
-    -   Instala mingw
-        -   32bits: `pacman -S mingw-w64-i686-toolchain`
-        -   64bits: `pacman -S mingw-w64-x86_64-toolchain`
-    -   Install mingw cmocka
-        -   32bits: `pacman -S mingw32/mingw-w64-i686-cmocka`
-        -   64bits: `pacman -S mingw64/mingw-w64-x86_64-cmocka`
--   Swig (puedes usar [Chocolatey](https://chocolatey.org/))
+- [msys2 - mingw-w64](http://www.msys2.org/) sigue las instrucciones en la web:
+  - Instala mingw
+    - 32bits: `pacman -S mingw-w64-i686-toolchain`
+    - 64bits: `pacman -S mingw-w64-x86_64-toolchain`
+  - Install mingw cmocka
+    - 32bits: `pacman -S mingw32/mingw-w64-i686-cmocka`
+    - 64bits: `pacman -S mingw64/mingw-w64-x86_64-cmocka`
+- Swig (puedes usar [Chocolatey](https://chocolatey.org/))
 
 ### macOS
 
 Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 
--   `brew install automake`
--   `brew install autoconf`
--   `brew install libtool`
--   `brew install swig`
--   `brew install cmocka`
+- `brew install automake`
+- `brew install autoconf`
+- `brew install libtool`
+- `brew install swig`
+- `brew install cmocka`
 
 ### Unix
 
--   build-esentials
--   automake
--   autoconf
--   libtool
--   swig
--   cmocka
+- build-esentials
+- automake
+- autoconf
+- libtool
+- swig
+- cmocka
 
 ### Construir el Proyecto
 
