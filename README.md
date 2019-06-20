@@ -4,7 +4,7 @@
 
 Descarga e instala la dependencia **libserialport** ([instrucciones](https://sigrok.org/wiki/Libserialport)) `git clone git://sigrok.org/libserialport`
 
-_Tip para los colaboradores:_ si están usando el editor Visual Studio Code usar la extensión [C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) **Con el formateo automático por defecto**
+_Tip para colaboradores:_ si estás utilizando el editor Visual Studio Code usa la extensión [C/C++ IntelliSense by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) **con formato automático por defecto**
 
 ### Controladores (Dependiendo del adaptador/puerto serial que tengas)
 
