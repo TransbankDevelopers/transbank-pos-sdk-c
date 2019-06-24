@@ -92,19 +92,52 @@ char *substring(char *string, ParamInfo info)
 
 BaseResponse *parse_load_keys_close_response(char *buf)
 {
-  ParamInfo function_info = {1, 4};
-  ParamInfo responseCode_info = {6, 2};
-  ParamInfo commerceCode_info = {9, 12};
-  ParamInfo terminalId_info = {22, 8};
-
   BaseResponse *response = malloc(sizeof(BaseResponse));
 
-  response->function = strtol(substring(buf, function_info), NULL, 10);
-  response->responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
-  response->commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
-  response->terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
-  response->initilized = TBK_OK;
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc(length * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
 
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtoll(word, NULL, 10);
+        break;
+
+      case 4:
+        strcpy(response->terminalId, word);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
   return response;
 }
 

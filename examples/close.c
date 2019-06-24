@@ -17,8 +17,16 @@ int main()
       printf("Function: %i\n", response.function);
       printf("Response Code: %i\n", response.responseCode);
       printf("Commerce Code: %llu\n", response.commerceCode);
-      printf("Terminal ID: %i\n", response.terminalId);
-      printf("Register closed successfully\n=================\n");
+      printf("Terminal ID: %s\n", response.terminalId);
+
+      if (response.responseCode == TBK_OK)
+      {
+        printf("Register closed successfully\n=================\n");
+      }
+      else
+      {
+        printf("Error: Close POS has failed\n=================\n");
+      }
     }
     else
     {

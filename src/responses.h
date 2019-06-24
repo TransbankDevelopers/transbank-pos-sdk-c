@@ -12,7 +12,7 @@ typedef struct
   int function;
   int responseCode;
   long long commerceCode;
-  int terminalId;
+  char terminalId[9];
   int initilized;
 } BaseResponse;
 
