@@ -149,7 +149,7 @@ TotalsResponse *parse_get_totals_response(char *buf)
   int init_pos = 1, length = 0, found = 0;
   for (int x = init_pos; x < strlen(buf); x++)
   {
-    if (buf[x] == '|')
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
     {
       word = malloc(length * sizeof(char *));
       strncpy(word, buf + init_pos, length);
