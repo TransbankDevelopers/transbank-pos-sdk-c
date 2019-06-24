@@ -17,8 +17,16 @@ int main()
       printf("Function: %i\n", response.function);
       printf("Response Code: %i\n", response.responseCode);
       printf("Commerce Code: %llu\n", response.commerceCode);
-      printf("Terminal ID: %i\n", response.terminalId);
-      puts("Keys loaded successfully.\n=================\n");
+      printf("Terminal ID: %s\n", response.terminalId);
+
+      if (response.responseCode == TBK_OK)
+      {
+        puts("Keys loaded successfully.\n=================\n");
+      }
+      else
+      {
+        puts("Error: Loadkeys has failed.\n=================\n");
+      }
     }
     else
     {

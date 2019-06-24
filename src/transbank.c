@@ -100,19 +100,52 @@ char *substring(char *string, ParamInfo info)
 
 BaseResponse *parse_load_keys_close_response(char *buf)
 {
-  ParamInfo function_info = {1, 4};
-  ParamInfo responseCode_info = {6, 2};
-  ParamInfo commerceCode_info = {9, 12};
-  ParamInfo terminalId_info = {22, 8};
-
   BaseResponse *response = malloc(sizeof(BaseResponse));
 
-  response->function = strtol(substring(buf, function_info), NULL, 10);
-  response->responseCode = strtol(substring(buf, responseCode_info), NULL, 10);
-  response->commerceCode = strtoll(substring(buf, commerceCode_info), NULL, 10);
-  response->terminalId = strtol(substring(buf, terminalId_info), NULL, 10);
-  response->initilized = TBK_OK;
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc(length * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
 
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      switch (found)
+      {
+      case 1:
+        response->function = strtol(word, NULL, 10);
+        break;
+
+      case 2:
+        response->responseCode = strtol(word, NULL, 10);
+        break;
+
+      case 3:
+        response->commerceCode = strtoll(word, NULL, 10);
+        break;
+
+      case 4:
+        strcpy(response->terminalId, word);
+        break;
+
+      default:
+        break;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+
+  response->initilized = TBK_OK;
   return response;
 }
 
@@ -124,7 +157,7 @@ TotalsResponse *parse_get_totals_response(char *buf)
   int init_pos = 1, length = 0, found = 0;
   for (int x = init_pos; x < strlen(buf); x++)
   {
-    if (buf[x] == '|')
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
     {
       word = malloc(length * sizeof(char *));
       strncpy(word, buf + init_pos, length);
@@ -559,7 +592,7 @@ TotalsResponse get_totals()
   return *rsp;
 }
 
-Message prepare_cancellation_message(int transactionID)
+Message prepare_refund_message(int transactionID)
 {
   const int payloadSize = 15;
   const int responseSize = 46;
@@ -594,9 +627,9 @@ Message prepare_cancellation_message(int transactionID)
   return message;
 }
 
-CancellationResponse *parse_cancellation_response(char *buf)
+RefundResponse *parse_refund_response(char *buf)
 {
-  CancellationResponse *response = malloc(sizeof(CancellationResponse));
+  RefundResponse *response = malloc(sizeof(RefundResponse));
   response->initilized = TBK_NOK;
 
   char *word;
@@ -629,11 +662,11 @@ CancellationResponse *parse_cancellation_response(char *buf)
         break;
 
       case 4:
-        response->terminalId = strtol(word, NULL, 10);
+        strcpy(response->terminalId, word);
         break;
 
       case 5:
-        response->authorizationCode = strtol(word, NULL, 10);
+        strcpy(response->authorizationCode, word);
         break;
 
       case 6:
@@ -654,19 +687,19 @@ CancellationResponse *parse_cancellation_response(char *buf)
   return response;
 }
 
-CancellationResponse cancellation(int transactionID)
+RefundResponse refund(int transactionID)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
 
-  CancellationResponse *rsp = malloc(sizeof(CancellationResponse));
+  RefundResponse *rsp = malloc(sizeof(RefundResponse));
   rsp->initilized = TBK_NOK;
 
-  Message cancellation_message = prepare_cancellation_message(transactionID);
+  Message refund_message = prepare_refund_message(transactionID);
 
   do
   {
-    retval = write_message(port, cancellation_message);
+    retval = write_message(port, refund_message);
     if (retval == TBK_OK)
     {
       retval = read_ack(port);
@@ -677,27 +710,27 @@ CancellationResponse cancellation(int transactionID)
       }
     }
     tries++;
-  } while (tries < cancellation_message.retries);
+  } while (tries < refund_message.retries);
 
   if (write_ok == TBK_OK)
   {
     tries = 0;
     char *buf;
-    buf = malloc(cancellation_message.responseSize * sizeof(char));
+    buf = malloc(refund_message.responseSize * sizeof(char));
 
     int wait = sp_input_waiting(port);
     do
     {
       if (wait > 0)
       {
-        int readedbytes = read_bytes(port, buf, cancellation_message);
+        int readedbytes = read_bytes(port, buf, refund_message);
         if (readedbytes > 0)
         {
-          cancellation_message.responseSize = readedbytes;
-          retval = reply_ack(port, buf, cancellation_message.responseSize);
+          refund_message.responseSize = readedbytes;
+          retval = reply_ack(port, buf, refund_message.responseSize);
           if (retval == TBK_OK)
           {
-            rsp = parse_cancellation_response(buf);
+            rsp = parse_refund_response(buf);
             return *rsp;
           }
           else
@@ -711,7 +744,7 @@ CancellationResponse cancellation(int transactionID)
         }
       }
       wait = sp_input_waiting(port);
-    } while (tries < cancellation_message.retries);
+    } while (tries < refund_message.retries);
   }
 
   return *rsp;

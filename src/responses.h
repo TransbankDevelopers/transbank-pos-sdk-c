@@ -12,7 +12,7 @@ typedef struct
   int function;
   int responseCode;
   long long commerceCode;
-  int terminalId;
+  char terminalId[9];
   int initilized;
 } BaseResponse;
 
@@ -30,11 +30,11 @@ typedef struct
   int function;
   int responseCode;
   long long commerceCode;
-  int terminalId;
-  int authorizationCode;
+  char terminalId[9];
+  char authorizationCode[7];
   int operationID;
   int initilized;
-} CancellationResponse;
+} RefundResponse;
 
 typedef struct
 {
