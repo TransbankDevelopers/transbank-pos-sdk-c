@@ -654,11 +654,11 @@ RefundResponse *parse_refund_response(char *buf)
         break;
 
       case 4:
-        response->terminalId = strtol(word, NULL, 10);
+        strcpy(response->terminalId, word);
         break;
 
       case 5:
-        response->authorizationCode = strtol(word, NULL, 10);
+        strcpy(response->authorizationCode, word);
         break;
 
       case 6:
