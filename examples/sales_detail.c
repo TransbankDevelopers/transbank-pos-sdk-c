@@ -10,22 +10,11 @@ int main()
   {
     printf("Sales detail...\n");
 
-    SalesDetailResponse response = sales_detail();
-    if (response.initilized == TBK_OK)
-    {
-      printf("SALES DETAIL RESPONSE\n=============\n");
+    int size = 0;
+    char *list = sales_detail(&size);
 
-      // printf("Function : %i \n", response.function);
-      // printf("Response Code : %i \n", response.responseCode);
-      // printf("Commerce Code : %llu \n", response.commerceCode);
-      // printf("Terminal ID : %i \n", response.terminalId);
-      // printf("Authorization Code : %i \n", response.authorizationCode);
-      // printf("Operation ID : %i \n\n", response.operationID);
-    }
-    else
-    {
-      printf("Could not get sales detail.\n");
-    }
+    printf("SALES DETAIL RESPONSE\n=============\n");
+    printf("%d Transactions\n%s\n", size, list);
   }
   else
   {

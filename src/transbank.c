@@ -750,6 +750,42 @@ RefundResponse refund(int transactionID)
   return *rsp;
 }
 
+char *parse_authorizationCode(char *buf)
+{
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '-' && found == 0)
+    {
+      break;
+    }
+
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      if (found == 6)
+      {
+        return word;
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+  return "-1";
+}
+
 SalesDetailResponse *parse_sales_detail_response(char *buf)
 {
   SalesDetailResponse *response = malloc(sizeof(SalesDetailResponse));
@@ -868,13 +904,23 @@ SalesDetailResponse *parse_sales_detail_response(char *buf)
   return response;
 }
 
-SalesDetailResponse sales_detail()
+char *concatLine(const char *s1, const char *s2)
+{
+  char *res = malloc(strlen(s1) + strlen(s2) + 2);
+  if (strlen(s1) > 0)
+  {
+    strcpy(res, s1);
+    strcat(res, "\n");
+  }
+  strcat(res, s2);
+  return res;
+}
+
+char *sales_detail(int *size)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
-
-  SalesDetailResponse *rsp = malloc(sizeof(SalesDetailResponse));
-  rsp->initilized = TBK_NOK;
+  char *rsp = "";
 
   do
   {
@@ -909,14 +955,17 @@ SalesDetailResponse sales_detail()
           retval = reply_ack(port, buf, readedbytes);
           if (retval == TBK_OK)
           {
-            rsp = parse_sales_detail_response(buf);
-            if (strcmp(rsp->authorizationCode, " ") != 0)
+            if (strcmp(parse_authorizationCode(buf), " ") != 0)
             {
+              // Append to string list
+              rsp = concatLine(rsp, buf);
+              *size = *size + 1;
+
               tries = 0;
               continue;
             }
 
-            return *rsp;
+            return rsp;
           }
           else
           {
@@ -931,5 +980,5 @@ SalesDetailResponse sales_detail()
     } while (tries < SALES_DETAIL.retries);
   }
 
-  return *rsp;
+  return rsp;
 }
