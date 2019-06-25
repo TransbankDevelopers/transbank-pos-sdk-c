@@ -916,6 +916,7 @@ char *concatLine(const char *s1, const char *s2)
   return res;
 }
 
+// sales_detail works only with POS 19.1 version
 char *sales_detail(int *size)
 {
   int tries = 0;
