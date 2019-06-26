@@ -2,8 +2,8 @@
 
 // DLL version information.
 VS_VERSION_INFO    VERSIONINFO
-FILEVERSION        1,4,0,0
-PRODUCTVERSION     1,4,0,0
+FILEVERSION        2,0,0,0
+PRODUCTVERSION     2,0,0,0
 FILEFLAGSMASK      VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
   FILEFLAGS        VS_FF_DEBUG | VS_FF_PRERELEASE
@@ -20,12 +20,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "Transbank"
       VALUE "FileDescription", "Library used by TransbankPosSDK to communicate with Verifone VX520 y VX520C integrated POS."
-      VALUE "FileVersion", "1.4.0.0"
+      VALUE "FileVersion", "2.0.0.0"
       VALUE "InternalName", "TransbankWrap"
       VALUE "LegalCopyright", "2019 Transbank"
       VALUE "OriginalFilename", "TransbankWrap.dll"
       VALUE "ProductName", "TransbankWrap Library"
-      VALUE "ProductVersion", "1.4.0.0"
+      VALUE "ProductVersion", "2.0.0.0"
     END
   END
   BLOCK "VarFileInfo"
