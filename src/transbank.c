@@ -15,6 +15,8 @@ static char LOAD_KEYS_MESSAGE[] = {STX, 0x30, 0x38, 0x30, 0x30, ETX, 0x0B};
 static char POLL_MESSAGE[] = {STX, 0x30, 0x31, 0x30, 0x30, ETX, 0x02};
 static char CHANGE_TO_NORMAL_MESSAGE[] = {STX, 0x30, 0x33, 0x30, 0x30, ETX, 0x00};
 static char LAST_SALE_MESSAGE[] = {STX, 0x30, 0x32, 0x35, 0x30, PIPE, ETX, 0x78};
+static char SALES_DETAIL_MESSAGE[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x31, PIPE, ETX, 0x36};
+static char SALES_DETAIL_MESSAGE_PRINT[] = {STX, 0x30, 0x32, 0x36, 0x30, PIPE, 0x30, PIPE, ETX, 0x37};
 
 static Message CLOSE = {
     .payload = CLOSE_MESSAGE,
@@ -45,6 +47,12 @@ static Message CHANGE_TO_NORMAL = {
     .payload = CHANGE_TO_NORMAL_MESSAGE,
     .payloadSize = 7,
     .responseSize = 1,
+    .retries = 3};
+
+static Message SALES_DETAIL = {
+    .payload = SALES_DETAIL_MESSAGE,
+    .payloadSize = 10,
+    .responseSize = 196,
     .retries = 3};
 
 int configure_port(int baud_rate)
@@ -740,4 +748,133 @@ RefundResponse refund(int transactionID)
   }
 
   return *rsp;
+}
+
+char *concatLine(const char *s1, const char *s2)
+{
+  char *res = malloc(strlen(s1) + strlen(s2) + 2);
+  if (strlen(s1) > 0)
+  {
+    strcpy(res, s1);
+    strcat(res, "\n");
+  }
+  strcat(res, s2);
+  return res;
+}
+
+char *trim(char *s)
+{
+  char *ptr;
+  if (!s)
+    return NULL; // handle NULL string
+  if (!*s)
+    return s; // handle empty string
+  for (ptr = s + strlen(s) - 1; (ptr >= s) && isspace(*ptr); --ptr)
+    ;
+  ptr[1] = '\0';
+  return s;
+}
+
+char *get_authorizationCode(char *buf)
+{
+  char *word;
+  int init_pos = 1, length = 0, found = 0;
+
+  for (int x = init_pos; x < strlen(buf); x++)
+  {
+    if (buf[x] == '-' && found == 0)
+    {
+      break;
+    }
+
+    if (buf[x] == '|' || (unsigned char)buf[x] == ETX)
+    {
+      word = malloc((length + 1) * sizeof(char *));
+      strncpy(word, buf + init_pos, length);
+      word[length] = 0;
+
+      found++;
+      init_pos = x + 1;
+      length = 0;
+
+      // Found words
+      if (found == 6)
+      {
+        return trim(word);
+      }
+
+      continue;
+    }
+
+    length++;
+  }
+  return "-1";
+}
+
+// sales_detail works only with POS 19.1 version
+char *sales_detail(int *size)
+{
+  int tries = 0;
+  int retval, write_ok = TBK_NOK;
+  char *rsp = "";
+
+  do
+  {
+    retval = write_message(port, SALES_DETAIL);
+    if (retval == TBK_OK)
+    {
+      retval = read_ack(port);
+      if (retval == TBK_OK)
+      {
+        write_ok = TBK_OK;
+        break;
+      }
+    }
+    tries++;
+  } while (tries < SALES_DETAIL.retries);
+
+  if (write_ok == TBK_OK)
+  {
+    char *buf;
+    tries = 0;
+    buf = malloc(SALES_DETAIL.responseSize * sizeof(char));
+
+    int wait;
+    do
+    {
+      wait = sp_input_waiting(port);
+      if (wait > 0)
+      {
+        int readedbytes = read_bytes(port, buf, SALES_DETAIL);
+        if (readedbytes > 0)
+        {
+          retval = reply_ack(port, buf, readedbytes);
+          if (retval == TBK_OK)
+          {
+            if (strcmp(get_authorizationCode(buf), "") != 0)
+            {
+              // Append to string list
+              rsp = concatLine(rsp, buf);
+              *size = *size + 1;
+
+              tries = 0;
+              continue;
+            }
+
+            return rsp;
+          }
+          else
+          {
+            tries++;
+          }
+        }
+        else
+        {
+          tries++;
+        }
+      }
+    } while (tries < SALES_DETAIL.retries);
+  }
+
+  return rsp;
 }

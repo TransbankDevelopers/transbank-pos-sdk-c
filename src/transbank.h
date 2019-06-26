@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <libserialport.h>
 #include "message.h"
@@ -26,5 +27,6 @@ extern enum TbkReturn poll();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();
 extern RefundResponse refund(int transactionID);
+extern char *sales_detail(int *size);
 
 #endif
