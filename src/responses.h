@@ -36,28 +36,4 @@ typedef struct
   int initilized;
 } RefundResponse;
 
-typedef struct
-{
-  int function;
-  int responseCode;
-  long long commerceCode;
-  char terminalId[9];
-  char ticketID[7];
-  char authorizationCode[7];
-  int amount;
-  int lastDigits;
-  int operationID;
-  char cardType[3];
-  char accountingDate[9];
-  char numberAccount[20];
-  char cardAbbr[3];
-  char transactionDate[9];
-  char transactionTime[7];
-  int employeID;
-  int tip;
-  int feeAmount;
-  int feeNumber;
-  int initilized;
-} SalesDetailResponse;
-
 #endif
