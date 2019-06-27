@@ -55,6 +55,12 @@ static Message SALES_DETAIL = {
     .responseSize = 196,
     .retries = 3};
 
+static Message SALES_DETAIL_PRINT = {
+    .payload = SALES_DETAIL_MESSAGE_PRINT,
+    .payloadSize = 10,
+    .responseSize = 1,
+    .retries = 3};
+
 int configure_port(int baud_rate)
 {
   int retval = 0;
@@ -812,7 +818,7 @@ char *get_authorizationCode(char *buf)
 }
 
 // sales_detail works only with POS 19.1 version
-char *sales_detail(int *size)
+char *sales_detail(int op)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
@@ -820,7 +826,15 @@ char *sales_detail(int *size)
 
   do
   {
-    retval = write_message(port, SALES_DETAIL);
+    if (op == 0)
+    {
+      retval = write_message(port, SALES_DETAIL_PRINT);
+    }
+    else
+    {
+      retval = write_message(port, SALES_DETAIL);
+    }
+
     if (retval == TBK_OK)
     {
       retval = read_ack(port);
@@ -833,7 +847,7 @@ char *sales_detail(int *size)
     tries++;
   } while (tries < SALES_DETAIL.retries);
 
-  if (write_ok == TBK_OK)
+  if (write_ok == TBK_OK && op == 1)
   {
     char *buf;
     tries = 0;
@@ -855,8 +869,6 @@ char *sales_detail(int *size)
             {
               // Append to string list
               rsp = concatLine(rsp, buf);
-              *size = *size + 1;
-
               tries = 0;
               continue;
             }
