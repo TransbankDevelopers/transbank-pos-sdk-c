@@ -9,12 +9,20 @@ int main()
   if (retval == TBK_OK)
   {
     printf("Sales detail...\n");
+    printf("Please select option, 0 to print or 1 to send info:");
+    int op;
+    scanf("%i", &op);
+    char *list = sales_detail(op);
 
-    int size = 0;
-    char *list = sales_detail(&size);
-
-    printf("SALES DETAIL RESPONSE\n=============\n");
-    printf("%d Transactions\n%s\n", size, list);
+    if (op == 1)
+    {
+      printf("SALES DETAIL RESPONSE\n=============\n");
+      printf("Transactions list:\n%s\n", list);
+    }
+    else
+    {
+      printf("Sales details printed in POS\n");
+    }
   }
   else
   {
