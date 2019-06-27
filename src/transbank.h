@@ -27,6 +27,6 @@ extern enum TbkReturn poll();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();
 extern RefundResponse refund(int transactionID);
-extern char *sales_detail(int *size);
+extern char *sales_detail(int op);
 
 #endif
