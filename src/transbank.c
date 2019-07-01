@@ -818,7 +818,7 @@ char *get_authorizationCode(char *buf)
 }
 
 // sales_detail works only with POS 19.1 version
-char *sales_detail(int op)
+char *sales_detail(bool print_on_pos)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
@@ -826,7 +826,7 @@ char *sales_detail(int op)
 
   do
   {
-    if (op == 0)
+    if (print_on_pos == true)
     {
       retval = write_message(port, SALES_DETAIL_PRINT);
     }
@@ -847,7 +847,7 @@ char *sales_detail(int op)
     tries++;
   } while (tries < SALES_DETAIL.retries);
 
-  if (write_ok == TBK_OK && op == 1)
+  if (write_ok == TBK_OK && print_on_pos == false)
   {
     char *buf;
     tries = 0;

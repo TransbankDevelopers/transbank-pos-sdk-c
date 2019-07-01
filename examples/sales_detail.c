@@ -10,11 +10,17 @@ int main()
   {
     printf("Sales detail...\n");
     printf("Please select option, 0 to print or 1 to send info:");
-    int op;
-    scanf("%i", &op);
-    char *list = sales_detail(op);
+    int print;
+    scanf("%i", &print);
+    bool print_on_pos = false;
 
-    if (op == 1)
+    if (print == 0){
+      print_on_pos = true;
+    }
+
+    char *list = sales_detail(print_on_pos);
+
+    if (!print_on_pos)
     {
       printf("SALES DETAIL RESPONSE\n=============\n");
       printf("Transactions list:\n%s\n", list);
