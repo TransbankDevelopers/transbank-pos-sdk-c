@@ -13,7 +13,7 @@ int main()
     int op;
     scanf("%i", &op);
 
-    RefundResponse response = refund(op); // refund(transactionID)
+    RefundCResponse response = refund(op); // refund(transactionID)
     if (response.initilized == TBK_OK)
     {
       printf("REFUND RESPONSE\n=============\n");

@@ -468,7 +468,7 @@ void test_get_totals_ok(void **state)
   will_return(__wrap_read_bytes, 19);
   will_return(__wrap_reply_ack, 0);
 
-  TotalsResponse response = get_totals();
+  TotalsCResponse response = get_totals();
 
   assert_int_equal(710, response.function);
   assert_int_equal(0, response.responseCode);
@@ -481,7 +481,7 @@ void test_get_totals_nok(void **state)
   (void)state;
   will_return_count(__wrap_write_message, TBK_NOK, 3);
 
-  TotalsResponse response = get_totals();
+  TotalsCResponse response = get_totals();
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -493,7 +493,7 @@ void test_get_totals_read_bytes_nok(void **state)
   will_return_count(__wrap_read_bytes, -1, 3);
   will_return_count(__wrap_sp_input_waiting, 32, 4);
 
-  TotalsResponse response = get_totals();
+  TotalsCResponse response = get_totals();
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -506,7 +506,7 @@ void test_get_totals_reply_ack_nok(void **state)
   will_return_count(__wrap_sp_input_waiting, 32, 4);
   will_return_count(__wrap_reply_ack, -1, 3);
 
-  TotalsResponse response = get_totals();
+  TotalsCResponse response = get_totals();
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -520,7 +520,7 @@ void test_refund_ok(void **state)
   will_return(__wrap_read_bytes, 34);
   will_return(__wrap_reply_ack, 0);
 
-  RefundResponse response = refund(10);
+  RefundCResponse response = refund(10);
 
   assert_int_equal(1210, response.function);
   assert_int_equal(0, response.responseCode);
@@ -532,7 +532,7 @@ void test_refund_nok(void **state)
   (void)state;
   will_return_count(__wrap_write_message, TBK_NOK, 3);
 
-  RefundResponse response = refund(9);
+  RefundCResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -544,7 +544,7 @@ void test_refund_read_bytes_nok(void **state)
   will_return_count(__wrap_read_bytes, -1, 3);
   will_return_count(__wrap_sp_input_waiting, 34, 4);
 
-  RefundResponse response = refund(9);
+  RefundCResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 
@@ -557,7 +557,7 @@ void test_refund_reply_ack_nok(void **state)
   will_return_count(__wrap_sp_input_waiting, 34, 4);
   will_return_count(__wrap_reply_ack, -1, 3);
 
-  RefundResponse response = refund(9);
+  RefundCResponse response = refund(9);
   assert_int_equal(TBK_NOK, response.initilized);
 }
 

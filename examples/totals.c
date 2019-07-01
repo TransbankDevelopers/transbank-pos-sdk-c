@@ -12,7 +12,7 @@ int main()
 
     printf("Getting Totals from POS...\n");
 
-    TotalsResponse response = get_totals();
+    TotalsCResponse response = get_totals();
     if (response.initilized == TBK_OK)
     {
       printf("POS CONNECTED\n=============\n");
