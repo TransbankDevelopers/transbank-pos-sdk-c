@@ -155,9 +155,9 @@ BaseResponse *parse_load_keys_close_response(char *buf)
   return response;
 }
 
-TotalsResponse *parse_get_totals_response(char *buf)
+TotalsCResponse *parse_get_totals_response(char *buf)
 {
-  TotalsResponse *response = malloc(sizeof(TotalsResponse));
+  TotalsCResponse *response = malloc(sizeof(TotalsCResponse));
 
   char *word;
   int init_pos = 1, length = 0, found = 0;
@@ -538,12 +538,12 @@ enum TbkReturn close_port()
   return retval;
 }
 
-TotalsResponse get_totals()
+TotalsCResponse get_totals()
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
 
-  TotalsResponse *rsp = malloc(sizeof(TotalsResponse));
+  TotalsCResponse *rsp = malloc(sizeof(TotalsCResponse));
   rsp->initilized = TBK_NOK;
 
   do
@@ -633,9 +633,9 @@ Message prepare_refund_message(int transactionID)
   return message;
 }
 
-RefundResponse *parse_refund_response(char *buf)
+RefundCResponse *parse_refund_response(char *buf)
 {
-  RefundResponse *response = malloc(sizeof(RefundResponse));
+  RefundCResponse *response = malloc(sizeof(RefundCResponse));
   response->initilized = TBK_NOK;
 
   char *word;
@@ -693,12 +693,12 @@ RefundResponse *parse_refund_response(char *buf)
   return response;
 }
 
-RefundResponse refund(int transactionID)
+RefundCResponse refund(int transactionID)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
 
-  RefundResponse *rsp = malloc(sizeof(RefundResponse));
+  RefundCResponse *rsp = malloc(sizeof(RefundCResponse));
   rsp->initilized = TBK_NOK;
 
   Message refund_message = prepare_refund_message(transactionID);

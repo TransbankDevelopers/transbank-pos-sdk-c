@@ -23,7 +23,7 @@ typedef struct
   int txCount;
   int txTotal;
   int initilized;
-} TotalsResponse;
+} TotalsCResponse;
 
 typedef struct
 {
@@ -34,6 +34,6 @@ typedef struct
   char authorizationCode[7];
   int operationID;
   int initilized;
-} RefundResponse;
+} RefundCResponse;
 
 #endif

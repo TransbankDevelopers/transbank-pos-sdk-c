@@ -22,11 +22,11 @@ extern char *sale(int amount, int ticket, bool send_messages);
 extern char *last_sale();
 extern BaseResponse close();
 extern BaseResponse load_keys();
-extern TotalsResponse get_totals();
+extern TotalsCResponse get_totals();
 extern enum TbkReturn poll();
 extern enum TbkReturn set_normal_mode();
 extern enum TbkReturn close_port();
-extern RefundResponse refund(int transactionID);
+extern RefundCResponse refund(int transactionID);
 extern char *sales_detail(bool print_on_pos);
 
 #endif
