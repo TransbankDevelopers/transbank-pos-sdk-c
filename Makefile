@@ -12,13 +12,15 @@ run: build build/transbank.o build/TransbankSerialUtils.o
 debug: build
 	export LIBSERIALPORT_DEBUG=1 && ./build/$(example) && unset LIBSERIALPORT_DEBUG
 
-wraper:
+Version:=$(shell grep 'FileVersion' version.rc | grep -o '[0-9]\.[0-9]\.[0-9]')
+
+dylib:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
-	cc -dynamiclib build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dylib -lserialport
+	cc -dynamiclib -current_version $(Version) -compatibility_version $(Version) build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dylib -lserialport
 	sudo cp build/TransbankWrap.dylib /usr/local/lib
 
-windows-wrapper:
+dll:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
 	windres.exe version.rc -o build/version.o
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
