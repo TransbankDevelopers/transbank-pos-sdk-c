@@ -18,6 +18,7 @@ Descarga e instala la dependencia **libserialport** ([instrucciones](https://sig
   - Instala mingw
     - 32bits: ```pacman -S mingw-w64-i686-toolchain```
     - 64bits: ```pacman -S mingw-w64-x86_64-toolchain```
+    - ```pacman -S base-devel```
   - Install mingw cmocka
     - 32bits: ```pacman -S mingw32/mingw-w64-i686-cmocka```
     - 64bits: ```pacman -S mingw64/mingw-w64-x86_64-cmocka```
