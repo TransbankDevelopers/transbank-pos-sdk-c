@@ -206,7 +206,7 @@ TotalsCResponse *parse_get_totals_response(char *buf)
   return response;
 }
 
-Message prepare_sale_message(long amount, int ticket, bool send_messages)
+Message prepare_sale_message(long amount, char* ticket, bool send_messages)
 {
   char operation[] = {STX, 0x30, 0x32, 0x30, 0x30, '\0'};
   char pipe[] = {PIPE, '\0'};
@@ -215,9 +215,6 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
 
   char ammount_string[10];
   sprintf(ammount_string, "%09ld", amount);
-
-  char ticket_string[7];
-  sprintf(ticket_string, "%06d", ticket);
 
   char send_message_string[2] = {send_messages + '0', '\0'};
 
@@ -228,7 +225,7 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
   strcat(msg, pipe);
   strcat(msg, ammount_string);
   strcat(msg, pipe);
-  strcat(msg, ticket_string);
+  strcat(msg, ticket);
   strcat(msg, pipe);
   strcat(msg, pipe);
   strcat(msg, pipe);
@@ -248,10 +245,15 @@ Message prepare_sale_message(long amount, int ticket, bool send_messages)
   return message;
 }
 
-char *sale(int amount, int ticket, bool send_messages)
+char *sale(int amount, char* ticket, bool send_messages)
 {
   int tries = 0;
   int retval, write_ok = TBK_NOK;
+
+  if (strlen(ticket) != 6)
+  {
+    return "tiket must have 6 characters";
+  }
 
   Message sale_message = prepare_sale_message(amount, ticket, send_messages);
 

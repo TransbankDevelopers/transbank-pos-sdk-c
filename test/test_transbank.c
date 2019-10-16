@@ -210,7 +210,7 @@ void test_load_keys_ok(void **state)
   assert_int_equal(810, response.function);
   assert_int_equal(0, response.responseCode);
   assert_int_equal(597029414300, response.commerceCode);
-  assert_string_equal('75001087', response.terminalId);
+  assert_string_equal("75001087", response.terminalId);
   assert_int_equal(TBK_OK, response.initilized);
 }
 
@@ -272,7 +272,7 @@ void test_close_ok(void **state)
   assert_int_equal(510, response.function);
   assert_int_equal(0, response.responseCode);
   assert_int_equal(597029414300, response.commerceCode);
-  assert_string_equal('75001087', response.terminalId);
+  assert_string_equal("75001087", response.terminalId);
   assert_int_equal(TBK_OK, response.initilized);
 }
 
@@ -329,7 +329,7 @@ void test_sale_ok(void **state)
   will_return(__wrap_read_bytes, 70);
   will_return(__wrap_reply_ack, 0);
 
-  char *response = sale(2500, 1, false);
+  char *response = sale(2500, "ABC123", false);
 
   char command[5];
   memset(command, '\0', sizeof(command));
@@ -352,8 +352,14 @@ void test_sale_nok(void **state)
   (void)state;
   will_return_count(__wrap_write_message, TBK_NOK, 3);
 
-  char *response = sale(2500, 1, false);
+  char *response = sale(2500, "ABC123", false);
   assert_int_equal(0, strcmp("Unable to request sale\n", response));
+}
+
+void test_sale_ticket_length(void **state)
+{
+  char *response = sale(2500, "A", false);
+  assert_string_equal("tiket must have 6 characters", response);
 }
 
 void test_sale_ack_nok(void **state)
@@ -362,7 +368,7 @@ void test_sale_ack_nok(void **state)
   will_return_count(__wrap_write_message, TBK_OK, 3);
   will_return_count(__wrap_read_ack, TBK_NOK, 3);
 
-  char *response = sale(2500, 1, false);
+  char *response = sale(2500, "ABC123", false);
   assert_int_equal(0, strcmp("Unable to request sale\n", response));
 }
 
@@ -374,7 +380,7 @@ void test_sale_read_bytes_nok(void **state)
   will_return_count(__wrap_read_bytes, -1, 3);
   will_return_count(__wrap_sp_input_waiting, 70, 4);
 
-  char *response = sale(2500, 1, false);
+  char *response = sale(2500, "ABC123", false);
   assert_int_equal(0, strcmp("Unable to request sale\n", response));
 }
 
@@ -387,7 +393,7 @@ void test_sale_reply_ack_nok(void **state)
   will_return_count(__wrap_sp_input_waiting, 70, 4);
   will_return_count(__wrap_reply_ack, -1, 3);
 
-  char *response = sale(2500, 1, false);
+  char *response = sale(2500, "ABC123", false);
   assert_int_equal(0, strcmp("Unable to request sale\n", response));
 }
 
@@ -584,6 +590,7 @@ const struct CMUnitTest transbank_tests[] = {
     cmocka_unit_test(test_close_reply_ack_nok),
     cmocka_unit_test(test_sale_ok),
     cmocka_unit_test(test_sale_nok),
+    cmocka_unit_test(test_sale_ticket_length),
     cmocka_unit_test(test_sale_ack_nok),
     cmocka_unit_test(test_sale_read_bytes_nok),
     cmocka_unit_test(test_sale_reply_ack_nok),
