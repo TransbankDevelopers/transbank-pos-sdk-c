@@ -10,7 +10,7 @@ int main()
   {
     printf("New Sale transaction...\n");
 
-    char *saleResponse = sale(2500, 2, false); // sale(amount, ticket_number, send_messages)
+    char *saleResponse = sale(2500, "000002", false); // sale(amount, ticket_number, send_messages)
     printf("Sale response %s\n", saleResponse);
   }
   else
