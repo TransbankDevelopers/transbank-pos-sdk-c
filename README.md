@@ -36,7 +36,7 @@ Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 
 ### Unix
 
-- build-esentials
+- build-essential
 - automake
 - autoconf
 - libtool
