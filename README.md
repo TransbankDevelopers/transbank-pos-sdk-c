@@ -84,7 +84,7 @@ Para generar una nueva versión se debe crear un nuevo pull request que contenga
 
 1. Incrementar el número de versión en el archivo `version.rc` siguiendo la guía de SemVer.
 2. Actualizar `Changelog.md` con los nuevos cambios/modificaciones incluidas en esta nueva versión.
-3. Generar la DLL y el Wrapper (`make windows-wrapper`).
+3. Generar la DLL y el Wrapper (`make dll`).
 
 Luego de mezclar el Pull Request:
 
