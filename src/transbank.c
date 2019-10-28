@@ -281,7 +281,7 @@ char *sale(int amount, char* ticket, bool send_messages)
     int wait = sp_input_waiting(port);
     do
     {
-      if (wait > 65)
+      if (wait > 64)
       {
         int readedbytes = read_bytes(port, buf, sale_message);
         if (readedbytes > 0)
