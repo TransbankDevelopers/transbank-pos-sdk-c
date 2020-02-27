@@ -14,9 +14,9 @@ debug: build
 
 Version:=$(shell grep 'FileVersion' version.rc | grep -o '[0-9]\.[0-9]\.[0-9]')
 
-dylib:
-	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
-	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
+dylib-java:
+	swig -java -o wrapper/transbank_wrap.c -package cl.transbank.pos.utils src/transbank.i
+	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I/Library/Java/JavaVirtualMachines/jdk1.8.0_241.jdk/Contents/Home/include/ -I/Library/Java/JavaVirtualMachines/jdk1.8.0_241.jdk/Contents/Home/include/darwin
 	cc -dynamiclib -current_version $(Version) -compatibility_version $(Version) build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dylib -lserialport
 	sudo cp build/TransbankWrap.dylib /usr/local/lib
 
