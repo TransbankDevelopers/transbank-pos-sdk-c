@@ -14,13 +14,27 @@ debug: build
 
 Version:=$(shell grep 'FileVersion' version.rc | grep -o '[0-9]\.[0-9]\.[0-9]')
 
-dylib:
+dylibjava:
+	swig -java -o wrapper/transbank_wrap.c -package cl.transbank.pos.utils src/transbank.i
+	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers
+	cc -dynamiclib -current_version $(Version) -compatibility_version $(Version) build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/libTransbankWrap.dylib -lserialport
+	sudo cp build/libTransbankWrap.dylib /usr/local/lib
+
+dlljava:
+	swig -java -o wrapper/transbank_wrap.c src/transbank.i
+	windres.exe version.rc -o build/version.o
+	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
+	cc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o build/version.o -o build/TransbankWrap.dll -lserialport -Wl,--subsystem,windows
+	cp build/TransbankWrap.dll /c/msys64/mingw64/bin
+
+
+dylibdotnet:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
 	cc -dynamiclib -current_version $(Version) -compatibility_version $(Version) build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/TransbankWrap.dylib -lserialport
 	sudo cp build/TransbankWrap.dylib /usr/local/lib
 
-dll:
+dlldotnet:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank.i
 	windres.exe version.rc -o build/version.o
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
