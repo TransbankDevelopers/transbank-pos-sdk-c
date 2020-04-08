@@ -213,8 +213,8 @@ Message prepare_sale_message(long amount, char* ticket, bool send_messages)
   char etx[] = {ETX, '\0'};
   char lrc_string[] = {0x30, '\0'};
 
-  char ammount_string[10];
-  sprintf(ammount_string, "%09ld", amount);
+  char amount_string[10];
+  sprintf(amount_string, "%09ld", amount);
 
   char send_message_string[2] = {send_messages + '0', '\0'};
 
@@ -223,7 +223,7 @@ Message prepare_sale_message(long amount, char* ticket, bool send_messages)
 
   strcat(msg, operation);
   strcat(msg, pipe);
-  strcat(msg, ammount_string);
+  strcat(msg, amount_string);
   strcat(msg, pipe);
   strcat(msg, ticket);
   strcat(msg, pipe);

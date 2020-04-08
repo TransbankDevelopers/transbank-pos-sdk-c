@@ -341,10 +341,10 @@ void test_sale_ok(void **state)
   strncpy(code, response + 6, 2);
   assert_int_equal(0, strcmp(code, "00"));
 
-  char ammount[5];
-  memset(ammount, '\0', sizeof(ammount));
-  strncpy(ammount, response + 41, 4);
-  assert_int_equal(0, strcmp(ammount, "2500"));
+  char amount[5];
+  memset(amount, '\0', sizeof(amount));
+  strncpy(amount, response + 41, 4);
+  assert_int_equal(0, strcmp(amount, "2500"));
 }
 
 void test_sale_nok(void **state)
