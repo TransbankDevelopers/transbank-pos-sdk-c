@@ -46,21 +46,42 @@ Estas instrucciones asumen que tienes instalado [homebrew](https://brew.sh/).
 ### Construir el Proyecto
 
 #### Build
+file = No es necesaio especificar la extensión
 
 ```bash
-make build example=main
+make build example=file
 ```
 
 ### Ejecutar ejemplos
 
 ```bash
-make run example=main
+make run example=file
 ```
 
 ### Debug
 
 ```bash
-make debug example=main
+make debug example=file
+```
+
+### Construir la libreria dylib MAC
+
+Antes que nada es necesario asegurarse que la versión de java es la 8, para ello ejecute en la consola (Este cambio no es permanente, solo perdura mientras este activa la ventana de la consola):
+
+```bash
+export PATH="/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home/bin:$PATH"
+```
+
+adicionalmente asegurese de tener la variable JAVA_HOME creada (La variable es consultada durante la ejecución por lo que fallará si no existe)
+
+```bash
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk1.8.0_251.jdk/Contents/Home"
+```
+
+#### Crear la dylib
+
+```bash
+make dylibjava
 ```
 
 ### Instalación
