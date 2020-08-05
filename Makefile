@@ -14,6 +14,12 @@ debug: build
 
 Version:=$(shell grep 'FileVersion' version.rc | grep -o '[0-9]\.[0-9]\.[0-9]')
 
+sojava:
+	swig -java -o wrapper/transbank_wrap.c -package cl.transbank.pos.utils src/transbank_java.i
+	cd build && -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I$(JAVA_HOME)/include -l$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+	gcc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/libTransbankWrap.so -lserialport
+	sudo cp build/libTransbankWrap.so /usr/local/lib
+
 dylibjava:
 	swig -java -o wrapper/transbank_wrap.c -package cl.transbank.pos.utils src/transbank_java.i
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
@@ -26,7 +32,6 @@ dlljava:
 	cd build && cc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src
 	cc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o build/version.o -o build/TransbankWrap.dll -lserialport -Wl,--subsystem,windows
 	cp build/TransbankWrap.dll /c/msys64/mingw64/bin
-
 
 dylibdotnet:
 	swig -csharp -o wrapper/transbank_wrap.c -namespace Transbank.POS.Utils src/transbank_dotnet.i
