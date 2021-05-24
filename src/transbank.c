@@ -37,6 +37,7 @@ static Message GET_TOTALS = {
 static Message LOAD_KEYS = {
     .payload = LOAD_KEYS_MESSAGE,
     .payloadSize = 7,
+    /*Independientemente del equipo (Verifone o Ingenico), debe ser 33*/
     .responseSize = 33,
     .retries = 3
 };
@@ -415,7 +416,12 @@ BaseResponse load_keys() {
 
         int wait = sp_input_waiting(port);
         do {
-            if (wait == LOAD_KEYS.responseSize) {
+            /* No se puede usar LOAD_KEYS.responseSize ya que el 
+             * tamaño de la respuesta varia segun el equipo en uso:
+             * 32 bytes: Equipo Verifone
+             * 33 bytes: Equipo Ingenico
+             */
+            if (wait >= 32) {
                 int readedbytes = read_bytes(port, buf, LOAD_KEYS);
                 if (readedbytes > 0) {
                     retval = reply_ack(port, buf, LOAD_KEYS.responseSize);
