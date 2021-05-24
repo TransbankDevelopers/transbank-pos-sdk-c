@@ -16,7 +16,7 @@ Version:=$(shell grep 'FileVersion' version.rc | grep -o '[0-9]\.[0-9]\.[0-9]')
 
 sojava:
 	swig -java -o wrapper/transbank_wrap.c -package cl.transbank.pos.utils src/transbank_java.i
-	cd build && -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I$(JAVA_HOME)/include -l$(readlink -f /usr/bin/javac | sed "s:/bin/javac::")
+	cd build && gcc -fpic -c ../src/transbank.c ../wrapper/transbank_wrap.c ../src/transbank_serial_utils.c -I../src -I$(JAVA_HOME)/include -l$(JAVA_HOME)
 	gcc -shared build/transbank.o build/transbank_wrap.o build/transbank_serial_utils.o -o build/libTransbankWrap.so -lserialport
 	sudo cp build/libTransbankWrap.so /usr/local/lib
 
