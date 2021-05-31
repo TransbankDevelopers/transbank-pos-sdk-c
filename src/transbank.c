@@ -424,7 +424,17 @@ BaseResponse load_keys() {
             if (wait >= 32) {
                 int readedbytes = read_bytes(port, buf, LOAD_KEYS);
                 if (readedbytes > 0) {
-                    retval = reply_ack(port, buf, LOAD_KEYS.responseSize);
+                    /*
+                     * Para enviar correctamente el ACK, debe usarse el tamaño
+                     * requerido por cada modelo
+                     * 32 bytes: Equipo Verifone
+                     * 33 bytes: Equipo Ingenico
+                     * La forma mas simple de hacer esto es enviar el tamaño 
+                     * de las respuesta que envió el equipo (wait) en lugar
+                     * de enviar el tamaño de la respuesta definido en el 
+                     * struct LOAD_KEYS
+                     */
+                    retval = reply_ack(port, buf, wait /* LOAD_KEYS.responseSize*/);
                     if (retval == TBK_OK) {
                         rsp = parse_load_keys_close_response(buf);
                         return *rsp;
@@ -745,6 +755,21 @@ char *sales_detail(bool print_on_pos) {
         tries++;
     } while (tries < SALES_DETAIL.retries);
 
+
+    /*
+     * Aca se produce un problema.
+     * 
+     * - El equipo Ingenico espera respuesta del host cuando no 
+     *   existen ventas, mientras que cuando hay ventas no espera 
+     *   respuesta del host.
+     * 
+     * - El equipo Verifone nunca espera respuesta del host, 
+     * 
+     * Por lo tanto, el comportamiento de esta funcion ira bien cuando:
+     * 
+     *    -- Se ejecute en un equipo Verifone 
+     *    -- Se ejecute en un equipo Ingenico que si tenga transacciones.
+     */
     if (write_ok == TBK_OK && print_on_pos == false) {
         char *buf;
         tries = 0;
@@ -753,7 +778,7 @@ char *sales_detail(bool print_on_pos) {
         int wait;
         do {
             wait = sp_input_waiting(port);
-            if (wait > 0) {
+            if (wait > 1) {
                 int readedbytes = read_bytes(port, buf, SALES_DETAIL);
                 if (readedbytes > 0) {
                     retval = reply_ack(port, buf, readedbytes);
@@ -764,7 +789,6 @@ char *sales_detail(bool print_on_pos) {
                             tries = 0;
                             continue;
                         }
-
                         return rsp;
                     } else {
                         tries++;

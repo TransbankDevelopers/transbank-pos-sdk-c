@@ -67,10 +67,6 @@ int read_bytes(struct sp_port *port, char *buf, Message message) {
 int read_ack(struct sp_port *port) {
     char buf[1];
     int retval = sp_blocking_read_next(port, buf, 1, DEFAULT_TIMEOUT);
-    {
-        printf("read_ack retval: %d", retval);
-        fflush(stdout);
-    }
     if (retval == 1 && buf[0] == ACK) {
         return TBK_OK;
     } else {
