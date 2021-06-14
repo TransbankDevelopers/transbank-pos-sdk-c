@@ -288,10 +288,13 @@ char *sale(int amount, char* ticket, bool send_messages) {
                     tries++;
                 }
             }
+            if (wait == SP_ERR_FAIL) {
+                return "Unable to request sale. POS connection was lost.\n";
+            }
             wait = sp_input_waiting(port);
         } while (tries < sale_message.retries);
     } else {
-        return "Unable to request sale\n";
+        return "Unable to request sale. Check POS connection.\n";
     }
     return "Unable to request sale\n";
 }
@@ -325,6 +328,9 @@ char *last_sale() {
         buf = malloc(last_sale_message.responseSize * sizeof (char));
 
         int wait = sp_input_waiting(port);
+        if (wait == SP_ERR_FAIL) {
+            return "Unable to request last sale\n";
+        }
         do {
             if (wait > 0) {
                 int readedbytes = read_bytes(port, buf, last_sale_message);
@@ -445,6 +451,9 @@ BaseResponse load_keys() {
                     tries++;
                 }
             }
+            if (wait == SP_ERR_FAIL) {
+                break;
+            }
             wait = sp_input_waiting(port);
         } while (tries < LOAD_KEYS.retries);
     }
@@ -528,6 +537,9 @@ TotalsCResponse get_totals() {
                 } else {
                     tries++;
                 }
+            }
+            if (wait == SP_ERR_FAIL) {
+                break;
             }
             wait = sp_input_waiting(port);
         } while (tries < GET_TOTALS.retries);
@@ -671,6 +683,10 @@ RefundCResponse refund(int transactionID) {
                     tries++;
                 }
             }
+            if (wait == SP_ERR_FAIL) {
+                rsp->responseCode = 3;
+                break;
+            }
             wait = sp_input_waiting(port);
         } while (tries < refund_message.retries);
     }
@@ -778,6 +794,9 @@ char *sales_detail(bool print_on_pos) {
         int wait;
         do {
             wait = sp_input_waiting(port);
+            if (wait == SP_ERR_FAIL) {
+                return "Unable to request sales detail. POS connection was lost.\n";
+            }
             if (wait > 1) {
                 int readedbytes = read_bytes(port, buf, SALES_DETAIL);
                 if (readedbytes > 0) {
