@@ -393,6 +393,9 @@ BaseResponse do_close() {
                     tries++;
                 }
             }
+            if (wait == SP_ERR_FAIL) {
+                break;
+            }
             wait = sp_input_waiting(port);
         } while (tries < CLOSE.retries);
     }
